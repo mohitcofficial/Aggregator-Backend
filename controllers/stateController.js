@@ -42,7 +42,44 @@ export const addNewState = catchAsyncError(async (req, res, next) => {
   });
 });
 
-export const updateState = catchAsyncError(async (req, res, next) => {});
+export const updateState = catchAsyncError(async (req, res, next) => {
+  const id = req.params.id;
+  const { name, metaTitle, metaDescription, metaKeyword } = req.body;
+
+  const stateBanner = req.file;
+
+  const state = await State.findById(id);
+
+  if (!state)
+    return next(new ErrorHandler("No State found with this ID !", 401));
+
+  if (name) state.name = name;
+
+  if (metaTitle) {
+    state.metaData["metaTitle"] = metaTitle;
+  }
+  if (metaDescription) {
+    state.metaData["metaDescription"] = metaDescription;
+  }
+  if (metaKeyword) {
+    state.metaData["metaKeyword"] = metaKeyword;
+  }
+
+  if (stateBanner) {
+    const bannerImage = await uploadToCloudinary(stateBanner);
+    const oldPublicId = state.bannerImage[0].public_id;
+    await deleteFromCloudinary(oldPublicId);
+    state.bannerImage = bannerImage;
+  }
+
+  await state.save();
+
+  res.status(201).json({
+    message: "State Updated Successfully !",
+    state,
+  });
+});
+
 export const getAllStates = catchAsyncError(async (req, res, next) => {
   const states = await State.find({});
 

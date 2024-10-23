@@ -22,17 +22,19 @@ const locationSchema = mongoose.Schema({
     type: Number,
     require: [true, "Mailing Address Price is mandatory !"],
   },
-  Address: {
-    type: Number,
+  address: {
+    type: String,
     require: [true, "Physical Address is mandatory !"],
   },
   images: [
     {
       public_id: {
         type: String,
+        required: [true, "Public id off image is mandatory !"],
       },
       url: {
         type: String,
+        required: [true, "Public url off image is mandatory !"],
       },
     },
   ],
@@ -50,7 +52,7 @@ const locationSchema = mongoose.Schema({
       required: [true, "Meta Keyword is mandatory !"],
     },
   },
-  coordinates: {
+  locationCoordinates: {
     type: {
       type: String,
       enum: ["Point"],
