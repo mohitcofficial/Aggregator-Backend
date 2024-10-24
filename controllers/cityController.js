@@ -10,7 +10,6 @@ import ErrorHandler from "../utils/ErrorHandler.js";
 export const addNewCity = catchAsyncError(async (req, res, next) => {
   const { name, stateId, metaTitle, metaDescription, metaKeyword } = req.body;
   const cityBanner = req.file;
-  console.log("banner: ", cityBanner);
 
   if (!name) return next(new ErrorHandler("City name is mandatory !", 400));
   if (!metaTitle)

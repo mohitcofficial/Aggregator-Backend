@@ -56,7 +56,8 @@ citySchema.pre("findOneAndDelete", async function (next) {
 
   await Location.deleteMany({ cityId });
 
-  if (publicIdsToDelete.length > 0) deleteManyFromCloudinary(publicIdsToDelete);
+  if (publicIdsToDelete.length > 0)
+    await deleteManyFromCloudinary(publicIdsToDelete);
 
   next();
 });
