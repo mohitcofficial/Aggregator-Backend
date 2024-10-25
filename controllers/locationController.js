@@ -178,7 +178,7 @@ export const updateLocationImage = catchAsyncError(async (req, res, next) => {
 });
 
 export const getAllLocations = catchAsyncError(async (req, res, next) => {
-  const locations = await Location.find({});
+  const locations = await Location.find({}).populate("cityId", "name");
 
   res.status(200).json({
     message: "City Fetched Successfully !",

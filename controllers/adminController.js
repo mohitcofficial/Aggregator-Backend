@@ -51,6 +51,16 @@ export const adminLogin = catchAsyncError(async (req, res, next) => {
   sendJWTToken(res, admin, `Welcome Back ${admin.username}`, 200);
 });
 
+export const getMyProfile = catchAsyncError(async (req, res, next) => {
+  const user = req.user;
+  if (!user) return next(new ErrorHandler("Not Logged In !", 401));
+
+  res.status(200).json({
+    success: true,
+    user,
+  });
+});
+
 export const logout = catchAsyncError(async (req, res, next) => {
   res
     .status(200)

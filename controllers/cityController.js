@@ -91,14 +91,15 @@ export const updateCity = catchAsyncError(async (req, res, next) => {
 });
 
 export const getAllCity = catchAsyncError(async (req, res, next) => {
-  const city = await City.find({});
+  const cities = await City.find({}).populate("stateId", "name");
 
   res.status(200).json({
     message: "City Fetched Successfully !",
-    count: city.length,
-    city,
+    count: cities.length,
+    cities,
   });
 });
+
 export const getCityInfo = catchAsyncError(async (req, res, next) => {
   const id = req.params.id;
 
