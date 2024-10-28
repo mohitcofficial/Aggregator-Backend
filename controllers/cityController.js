@@ -92,6 +92,7 @@ export const updateCity = catchAsyncError(async (req, res, next) => {
 
 export const getAllCity = catchAsyncError(async (req, res, next) => {
   const cities = await City.find({}).populate("stateId", "name");
+  // const cities = await City.find({}).populate([{ path: 'stateId', select: 'name' }, { path: 'chiefMis', select:  }}])
 
   res.status(200).json({
     message: "City Fetched Successfully !",
