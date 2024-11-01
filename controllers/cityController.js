@@ -55,7 +55,7 @@ export const addNewCity = catchAsyncError(async (req, res, next) => {
 
 export const updateCity = catchAsyncError(async (req, res, next) => {
   const id = req.params.id;
-  const { name, metaTitle, metaDescription, metaKeyword } = req.body;
+  const { name, metaTitle, metaDescription, metaKeyword, stateId } = req.body;
 
   const cityBanner = req.file;
 
@@ -74,6 +74,8 @@ export const updateCity = catchAsyncError(async (req, res, next) => {
   if (metaKeyword) {
     city.metaData["metaKeyword"] = metaKeyword;
   }
+
+  if (stateId) city.stateId = stateId;
 
   if (cityBanner) {
     const bannerImage = await uploadToCloudinary(cityBanner);
@@ -106,7 +108,7 @@ export const getCityInfo = catchAsyncError(async (req, res, next) => {
 
   if (!id) return next(new ErrorHandler("Please provide City id", 400));
 
-  const city = await City.findById(id);
+  const city = await City.findById(id).populate("stateId", "name");
   if (!city) return next(new ErrorHandler("No City found with this id", 401));
 
   res.status(200).json({

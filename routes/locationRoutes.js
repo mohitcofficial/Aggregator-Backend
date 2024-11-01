@@ -14,7 +14,9 @@ import {
 const router = express.Router();
 
 router.route("/location").post(isAuthenticated, multipleUpload, addNewLocation);
-router.route("/location/:id").put(isAuthenticated, updateLocation);
+router
+  .route("/location/:id")
+  .put(isAuthenticated, singleUpload, updateLocation);
 router
   .route("/location/image/:id")
   .put(isAuthenticated, singleUpload, updateLocationImage);

@@ -114,6 +114,7 @@ export const updateLocation = catchAsyncError(async (req, res, next) => {
     address,
     xCoordinate,
     yCoordinate,
+    cityId,
   } = req.body;
 
   const location = await Location.findById(id);
@@ -122,6 +123,7 @@ export const updateLocation = catchAsyncError(async (req, res, next) => {
     return next(new ErrorHandler("No Location found with this ID !", 401));
 
   if (name) location.name = name;
+  if (cityId) location.cityId = cityId;
   if (metaTitle) location.metaData["metaTitle"] = metaTitle;
   if (metaDescription) location.metaData["metaDescription"] = metaDescription;
   if (metaKeyword) location.metaData["metaKeyword"] = metaKeyword;
@@ -191,7 +193,7 @@ export const getLocationInfo = catchAsyncError(async (req, res, next) => {
 
   if (!id) return next(new ErrorHandler("Please provide Location id", 400));
 
-  const location = await Location.findById(id);
+  const location = await Location.findById(id).populate("cityId", "name");
   if (!location)
     return next(new ErrorHandler("No Location found with this id", 401));
 
@@ -218,16 +220,17 @@ export const deleteLocation = catchAsyncError(async (req, res, next) => {
 });
 export const deleteLocationImage = catchAsyncError(async (req, res, next) => {
   const id = req.params.id;
-  const { locationId } = req.body;
+  const { locationId } = req.query;
 
   if (!id) return next(new ErrorHandler("Please provide Image id", 400));
+  if (!locationId)
+    return next(new ErrorHandler("Please provide Location id", 400));
 
   const location = await Location.findById(locationId);
   if (!location)
     return next(new ErrorHandler("No Location found with this id", 401));
 
   const imageIndex = location.images.findIndex((img) => {
-    console.log("img: ", img._id.toString(), " id: ", id);
     return img._id.toString() === id;
   });
 
