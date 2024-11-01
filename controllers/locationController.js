@@ -8,21 +8,16 @@ import {
 import ErrorHandler from "../utils/ErrorHandler.js";
 
 export const addNewLocation = catchAsyncError(async (req, res, next) => {
-  const {
-    name,
-    cityId,
-    metaTitle,
-    metaDescription,
-    metaKeyword,
-    businessRegistrationPrice,
-    gstRegistrationPrice,
-    mailingAddressPrice,
-    address,
-    xCoordinate,
-    yCoordinate,
-  } = req.body;
+  const { name, cityId, metaTitle, metaDescription, metaKeyword, address } =
+    req.body;
+  const xCoordinate = parseFloat(req.body.xCoordinate);
+  const yCoordinate = parseFloat(req.body.yCoordinate);
+  const businessRegistrationPrice = parseFloat(
+    req.body.businessRegistrationPrice
+  );
+  const gstRegistrationPrice = parseFloat(req.body.gstRegistrationPrice);
+  const mailingAddressPrice = parseFloat(req.body.mailingAddressPrice);
   const locationImages = req.files;
-  console.log("locationImages: ", locationImages);
 
   if (!name) return next(new ErrorHandler("Location name is mandatory !", 400));
   if (!metaTitle)
@@ -83,39 +78,47 @@ export const addNewLocation = catchAsyncError(async (req, res, next) => {
     );
   }
 
-  const location = await Location.create({
-    name,
-    cityId,
-    businessRegistrationPrice,
-    gstRegistrationPrice,
-    mailingAddressPrice,
-    address,
-    images,
-    metaData,
-    locationCoordinates,
-  });
+  try {
+    const location = await Location.create({
+      name,
+      cityId,
+      businessRegistrationPrice,
+      gstRegistrationPrice,
+      mailingAddressPrice,
+      address,
+      images,
+      metaData,
+      locationCoordinates,
+    });
 
-  res.status(201).json({
-    message: "Location Added Successfully !",
-    location,
-  });
+    res.status(201).json({
+      message: "Location Added Successfully !",
+      location,
+    });
+  } catch (error) {
+    const deletePromises = images.map((image) =>
+      deleteFromCloudinary(image.public_id)
+    );
+
+    await Promise.all(deletePromises);
+
+    return next(new ErrorHandler("Failed to create location !", 500));
+  }
 });
 
 export const updateLocation = catchAsyncError(async (req, res, next) => {
   const id = req.params.id;
-  const {
-    name,
-    metaTitle,
-    metaDescription,
-    metaKeyword,
-    businessRegistrationPrice,
-    gstRegistrationPrice,
-    mailingAddressPrice,
-    address,
-    xCoordinate,
-    yCoordinate,
-    cityId,
-  } = req.body;
+  const { name, metaTitle, metaDescription, metaKeyword, address, cityId } =
+    req.body;
+
+  const xCoordinate = parseFloat(req.body.xCoordinate);
+  const yCoordinate = parseFloat(req.body.yCoordinate);
+  const businessRegistrationPrice = parseFloat(
+    req.body.businessRegistrationPrice
+  );
+  const gstRegistrationPrice = parseFloat(req.body.gstRegistrationPrice);
+  const mailingAddressPrice = parseFloat(req.body.mailingAddressPrice);
+  const locationImages = req.files;
 
   const location = await Location.findById(id);
 
@@ -128,13 +131,39 @@ export const updateLocation = catchAsyncError(async (req, res, next) => {
   if (metaDescription) location.metaData["metaDescription"] = metaDescription;
   if (metaKeyword) location.metaData["metaKeyword"] = metaKeyword;
   if (address) location.address = address;
-  if (businessRegistrationPrice)
+  if (businessRegistrationPrice) {
+    if (typeof businessRegistrationPrice !== "number")
+      return next(
+        new ErrorHandler("Business Registration Price must be a number!", 401)
+      );
     location.businessRegistrationPrice = businessRegistrationPrice;
-  if (gstRegistrationPrice)
+  }
+  if (gstRegistrationPrice) {
+    if (typeof gstRegistrationPrice !== "number")
+      return next(
+        new ErrorHandler("GST Registration Price must be a number!", 401)
+      );
     location.gstRegistrationPrice = gstRegistrationPrice;
-  if (mailingAddressPrice) location.mailingAddressPrice = mailingAddressPrice;
-  if (xCoordinate) location.locationCoordinates["coordinates"][0] = xCoordinate;
-  if (yCoordinate) location.locationCoordinates["coordinates"][1] = yCoordinate;
+  }
+  if (mailingAddressPrice) {
+    if (typeof mailingAddressPrice !== "number")
+      return next(
+        new ErrorHandler("Mailing Address Price must be a number!", 401)
+      );
+    location.mailingAddressPrice = mailingAddressPrice;
+  }
+  if (xCoordinate) {
+    if (typeof xCoordinate !== "number")
+      return next(new ErrorHandler("X Coordinate must be a number!", 401));
+
+    location.locationCoordinates["coordinates"][0] = xCoordinate;
+  }
+  if (yCoordinate) {
+    console.log(typeof yCoordinate);
+    if (typeof yCoordinate !== "number")
+      return next(new ErrorHandler("Y Coordinate must be a number!", 401));
+    location.locationCoordinates["coordinates"][1] = yCoordinate;
+  }
 
   await location.save();
 
@@ -146,6 +175,10 @@ export const updateLocation = catchAsyncError(async (req, res, next) => {
 export const updateLocationImage = catchAsyncError(async (req, res, next) => {
   const id = req.params.id;
   const { locationId } = req.body;
+
+  if (!id) return next(new ErrorHandler("Image ID is mandatory !", 400));
+  if (!locationId)
+    return next(new ErrorHandler("Location ID is mandatory !", 400));
 
   const image = req.file;
 
@@ -210,7 +243,12 @@ export const deleteLocation = catchAsyncError(async (req, res, next) => {
   const location = await Location.findById(id);
   if (!location)
     return next(new ErrorHandler("No Location found with this id", 401));
-  await deleteFromCloudinary(location.images[0].public_id);
+
+  const deletePromises = location.images.map((image) =>
+    deleteFromCloudinary(image?.public_id)
+  );
+  await Promise.all(deletePromises);
+
   await Location.findOneAndDelete({ _id: id });
 
   res.status(200).json({
