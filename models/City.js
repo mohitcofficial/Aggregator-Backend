@@ -37,6 +37,18 @@ const citySchema = mongoose.Schema(
         required: [true, "Meta Keyword is mandatory !"],
       },
     },
+    businessRegistrationPrice: {
+      type: Number,
+      required: true,
+    },
+    gstRegistrationPrice: {
+      type: Number,
+      required: true,
+    },
+    mailingAddressPrice: {
+      type: Number,
+      required: true,
+    },
   },
   { timeStamps: true }
 );

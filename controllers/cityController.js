@@ -10,6 +10,11 @@ import ErrorHandler from "../utils/ErrorHandler.js";
 export const addNewCity = catchAsyncError(async (req, res, next) => {
   const { name, stateId, metaTitle, metaDescription, metaKeyword } = req.body;
   const cityBanner = req.file;
+  const businessRegistrationPrice = parseFloat(
+    req.body.businessRegistrationPrice
+  );
+  const gstRegistrationPrice = parseFloat(req.body.gstRegistrationPrice);
+  const mailingAddressPrice = parseFloat(req.body.mailingAddressPrice);
 
   if (!name) return next(new ErrorHandler("City name is mandatory !", 400));
   if (!metaTitle)
@@ -22,6 +27,14 @@ export const addNewCity = catchAsyncError(async (req, res, next) => {
     return next(new ErrorHandler("City banner is mandatory !", 400));
   if (!stateId)
     return next(new ErrorHandler("City State ID is mandatory !", 400));
+  if (!businessRegistrationPrice)
+    return next(
+      new ErrorHandler("City Business Regisration Price is mandatory !", 400)
+    );
+  if (!gstRegistrationPrice)
+    return next(new ErrorHandler("GST Registration Price is mandatory !", 400));
+  if (!mailingAddressPrice)
+    return next(new ErrorHandler("Mailing Address Price is mandatory !", 400));
 
   const flag = await City.findOne({ name, stateId });
   const flag2 = await State.findById(stateId);
@@ -45,6 +58,9 @@ export const addNewCity = catchAsyncError(async (req, res, next) => {
     metaData,
     stateId,
     bannerImage,
+    businessRegistrationPrice: businessRegistrationPrice || 11999,
+    gstRegistrationPrice: gstRegistrationPrice || 11999,
+    mailingAddressPrice: mailingAddressPrice || 9999,
   });
 
   res.status(201).json({
@@ -55,7 +71,16 @@ export const addNewCity = catchAsyncError(async (req, res, next) => {
 
 export const updateCity = catchAsyncError(async (req, res, next) => {
   const id = req.params.id;
-  const { name, metaTitle, metaDescription, metaKeyword, stateId } = req.body;
+  const {
+    name,
+    metaTitle,
+    metaDescription,
+    metaKeyword,
+    stateId,
+    businessRegistrationPrice,
+    gstRegistrationPrice,
+    mailingAddressPrice,
+  } = req.body;
 
   const cityBanner = req.file;
 
@@ -74,6 +99,12 @@ export const updateCity = catchAsyncError(async (req, res, next) => {
   if (metaKeyword) {
     city.metaData["metaKeyword"] = metaKeyword;
   }
+  if (businessRegistrationPrice)
+    city.businessRegistrationPrice = parseFloat(businessRegistrationPrice);
+  if (gstRegistrationPrice)
+    city.gstRegistrationPrice = parseFloat(gstRegistrationPrice);
+  if (mailingAddressPrice)
+    city.mailingAddressPrice = parseFloat(mailingAddressPrice);
 
   if (stateId) city.stateId = stateId;
 
