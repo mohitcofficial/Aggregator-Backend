@@ -2,6 +2,7 @@ import { createTransport } from "nodemailer";
 import ErrorHandler from "../utils/ErrorHandler.js";
 import { google } from "googleapis";
 import { catchAsyncError } from "../middleware/catchAsyncError.js";
+import { Lead } from "../models/Lead.js";
 
 export const sendMail = catchAsyncError(async (req, res, next) => {
   const { subject, text } = req.body;
@@ -45,10 +46,34 @@ export const sendMail = catchAsyncError(async (req, res, next) => {
     html: text,
   });
 
-  res.status(200).json({
-    success: true,
-    message: `Email Send to ${to}`,
-  });
+  const { name, email, phoneNumber, requirement, location } = req.body;
+
+  if (name && email && phoneNumber && requirement && location) {
+    try {
+      const lead = await Lead.create({
+        name,
+        email,
+        phoneNumber,
+        location,
+        requirement,
+        origin: "Mail",
+      });
+      res.status(200).json({
+        success: true,
+        message: `Email Send to ${to}`,
+        lead,
+      });
+    } catch (error) {
+      return next(
+        new ErrorHandler("Something Went Wrong while sending email", 400)
+      );
+    }
+
+    res.status(200).json({
+      success: true,
+      message: `Email Send to ${to}`,
+    });
+  }
 });
 
 // export const sendMail = catchAsyncError(async (req, res, next) => {
