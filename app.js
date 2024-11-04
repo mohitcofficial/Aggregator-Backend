@@ -22,7 +22,11 @@ app.use(cookieParser());
 
 app.use(
   cors({
-    origin: ["http://localhost:3000", "http://145.223.21.203"],
+    origin: [
+      "http://localhost:3000",
+      "https://admin.coworktown.com",
+      "https://.coworktown.com",
+    ],
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE"],
   })
