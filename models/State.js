@@ -13,6 +13,12 @@ const stateSchema = mongoose.Schema(
     slug: {
       type: String,
     },
+    rating: {
+      type: Number,
+      default: 0,
+      min: 0,
+      max: 5,
+    },
     bannerImage: [
       {
         public_id: {

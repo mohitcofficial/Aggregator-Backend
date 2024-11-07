@@ -3,6 +3,7 @@ import {
   getCityInfoFromSlug,
   getSimilarCities,
   getSimilarLocations,
+  getSimilarStates,
   getStateInfoFromSlug,
   sendMail,
 } from "../controllers/userController.js";
@@ -14,5 +15,6 @@ router.route("/state/:stateSlug").get(getStateInfoFromSlug);
 router.route("/state/:stateSlug/city/:citySlug").get(getCityInfoFromSlug);
 router.route("/cities/similar/:stateId/:cityId").get(getSimilarCities);
 router.route("/locations/similar/:cityId/:locationId").get(getSimilarLocations);
+router.route("/states/similar/:stateId").get(getSimilarStates);
 
 export default router;

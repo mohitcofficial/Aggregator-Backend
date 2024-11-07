@@ -17,6 +17,7 @@ export const addNewLocation = catchAsyncError(async (req, res, next) => {
   );
   const gstRegistrationPrice = parseFloat(req.body.gstRegistrationPrice);
   const mailingAddressPrice = parseFloat(req.body.mailingAddressPrice);
+  const rating = parseFloat(req.body.rating);
   const locationImages = req.files;
 
   if (!name) return next(new ErrorHandler("Location name is mandatory !", 400));
@@ -78,6 +79,8 @@ export const addNewLocation = catchAsyncError(async (req, res, next) => {
     );
   }
 
+  const locationRating = rating ? parseFloat(rating) : 0;
+
   try {
     const location = await Location.create({
       name,
@@ -89,6 +92,7 @@ export const addNewLocation = catchAsyncError(async (req, res, next) => {
       images,
       metaData,
       locationCoordinates,
+      rating: locationRating,
     });
 
     res.status(201).json({
@@ -118,6 +122,7 @@ export const updateLocation = catchAsyncError(async (req, res, next) => {
   );
   const gstRegistrationPrice = parseFloat(req.body.gstRegistrationPrice);
   const mailingAddressPrice = parseFloat(req.body.mailingAddressPrice);
+  const rating = parseFloat(req.body.rating);
   const locationImages = req.files;
 
   const location = await Location.findById(id);
@@ -159,10 +164,15 @@ export const updateLocation = catchAsyncError(async (req, res, next) => {
     location.locationCoordinates["coordinates"][0] = xCoordinate;
   }
   if (yCoordinate) {
-    console.log(typeof yCoordinate);
     if (typeof yCoordinate !== "number")
       return next(new ErrorHandler("Y Coordinate must be a number!", 401));
     location.locationCoordinates["coordinates"][1] = yCoordinate;
+  }
+
+  if (rating) {
+    if (typeof rating !== "number")
+      return next(new ErrorHandler("Rating must be a number!", 401));
+    location.rating = parseFloat(rating);
   }
 
   await location.save();

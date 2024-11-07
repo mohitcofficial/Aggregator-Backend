@@ -7,7 +7,7 @@ import {
 import ErrorHandler from "../utils/ErrorHandler.js";
 
 export const addNewState = catchAsyncError(async (req, res, next) => {
-  const { name, metaTitle, metaDescription, metaKeyword } = req.body;
+  const { name, metaTitle, metaDescription, metaKeyword, rating } = req.body;
   const stateBanner = req.file;
 
   if (!name) return next(new ErrorHandler("State name is mandatory !", 400));
@@ -28,12 +28,14 @@ export const addNewState = catchAsyncError(async (req, res, next) => {
       new ErrorHandler("State already present with this name !", 401)
     );
 
+  const stateRating = rating ? parseFloat(rating) : 0;
   const bannerImage = await uploadToCloudinary(stateBanner);
 
   const state = await State.create({
     name,
     metaData,
     bannerImage,
+    rating: stateRating,
   });
 
   res.status(201).json({
@@ -44,7 +46,7 @@ export const addNewState = catchAsyncError(async (req, res, next) => {
 
 export const updateState = catchAsyncError(async (req, res, next) => {
   const id = req.params.id;
-  const { name, metaTitle, metaDescription, metaKeyword } = req.body;
+  const { name, metaTitle, metaDescription, metaKeyword, rating } = req.body;
 
   const stateBanner = req.file;
 
@@ -64,6 +66,7 @@ export const updateState = catchAsyncError(async (req, res, next) => {
   if (metaKeyword) {
     state.metaData["metaKeyword"] = metaKeyword;
   }
+  if (rating) state.rating = parseFloat(rating);
 
   if (stateBanner) {
     const bannerImage = await uploadToCloudinary(stateBanner);

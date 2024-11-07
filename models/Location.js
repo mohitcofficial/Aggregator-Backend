@@ -9,6 +9,12 @@ const locationSchema = mongoose.Schema(
     slug: {
       type: String,
     },
+    rating: {
+      type: Number,
+      default: 0,
+      min: 0,
+      max: 5,
+    },
     cityId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "City",

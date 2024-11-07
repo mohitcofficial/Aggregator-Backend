@@ -11,6 +11,12 @@ const citySchema = mongoose.Schema(
     slug: {
       type: String,
     },
+    rating: {
+      type: Number,
+      default: 0,
+      min: 0,
+      max: 5,
+    },
     stateId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "State",

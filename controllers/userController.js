@@ -117,6 +117,20 @@ export const getCityInfoFromSlug = catchAsyncError(async (req, res, next) => {
   });
 });
 
+export const getSimilarStates = catchAsyncError(async (req, res, next) => {
+  const { stateId } = req.params;
+
+  const similarStates = await State.find({ _id: { $ne: stateId } }).sort({
+    rating: -1,
+  });
+
+  res.status(200).json({
+    success: true,
+    message: "Similar States Fetched Successfully",
+    count: similarStates.length,
+    similarStates,
+  });
+});
 export const getSimilarCities = catchAsyncError(async (req, res, next) => {
   const { stateId, cityId } = req.params;
   if (!stateId) return next(new ErrorHandler("Please provide State ID !", 404));

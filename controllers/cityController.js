@@ -15,6 +15,7 @@ export const addNewCity = catchAsyncError(async (req, res, next) => {
   );
   const gstRegistrationPrice = parseFloat(req.body.gstRegistrationPrice);
   const mailingAddressPrice = parseFloat(req.body.mailingAddressPrice);
+  const rating = parseFloat(req.body.rating);
 
   if (!name) return next(new ErrorHandler("City name is mandatory !", 400));
   if (!metaTitle)
@@ -52,6 +53,7 @@ export const addNewCity = catchAsyncError(async (req, res, next) => {
 
   const metaData = { metaTitle, metaDescription, metaKeyword };
   const bannerImage = await uploadToCloudinary(cityBanner);
+  const cityRating = rating ? parseFloat(rating) : 0;
 
   const city = await City.create({
     name,
@@ -61,6 +63,7 @@ export const addNewCity = catchAsyncError(async (req, res, next) => {
     businessRegistrationPrice: businessRegistrationPrice || 11999,
     gstRegistrationPrice: gstRegistrationPrice || 11999,
     mailingAddressPrice: mailingAddressPrice || 9999,
+    rating: cityRating,
   });
 
   res.status(201).json({
@@ -71,17 +74,14 @@ export const addNewCity = catchAsyncError(async (req, res, next) => {
 
 export const updateCity = catchAsyncError(async (req, res, next) => {
   const id = req.params.id;
-  const {
-    name,
-    metaTitle,
-    metaDescription,
-    metaKeyword,
-    stateId,
-    businessRegistrationPrice,
-    gstRegistrationPrice,
-    mailingAddressPrice,
-  } = req.body;
+  const { name, metaTitle, metaDescription, metaKeyword, stateId } = req.body;
 
+  const businessRegistrationPrice = parseFloat(
+    req.body.businessRegistrationPrice
+  );
+  const gstRegistrationPrice = parseFloat(req.body.gstRegistrationPrice);
+  const mailingAddressPrice = parseFloat(req.body.mailingAddressPrice);
+  const rating = parseFloat(req.body.rating);
   const cityBanner = req.file;
 
   const city = await City.findById(id);
@@ -99,12 +99,34 @@ export const updateCity = catchAsyncError(async (req, res, next) => {
   if (metaKeyword) {
     city.metaData["metaKeyword"] = metaKeyword;
   }
-  if (businessRegistrationPrice)
-    city.businessRegistrationPrice = parseFloat(businessRegistrationPrice);
-  if (gstRegistrationPrice)
-    city.gstRegistrationPrice = parseFloat(gstRegistrationPrice);
-  if (mailingAddressPrice)
-    city.mailingAddressPrice = parseFloat(mailingAddressPrice);
+
+  if (businessRegistrationPrice) {
+    if (typeof businessRegistrationPrice !== "number")
+      return next(
+        new ErrorHandler("Business Registration Price must be a number!", 401)
+      );
+    city.businessRegistrationPrice = businessRegistrationPrice;
+  }
+  if (gstRegistrationPrice) {
+    if (typeof gstRegistrationPrice !== "number")
+      return next(
+        new ErrorHandler("GST Registration Price must be a number!", 401)
+      );
+    city.gstRegistrationPrice = gstRegistrationPrice;
+  }
+  if (mailingAddressPrice) {
+    if (typeof mailingAddressPrice !== "number")
+      return next(
+        new ErrorHandler("Mailing Address Price must be a number!", 401)
+      );
+    city.mailingAddressPrice = mailingAddressPrice;
+  }
+
+  if (rating) {
+    if (typeof rating !== "number")
+      return next(new ErrorHandler("Rating must be a number!", 401));
+    city.rating = parseFloat(rating);
+  }
 
   if (stateId) city.stateId = stateId;
 
