@@ -3,6 +3,9 @@ import ErrorHandler from "../utils/ErrorHandler.js";
 import { google } from "googleapis";
 import { catchAsyncError } from "../middleware/catchAsyncError.js";
 import { Lead } from "../models/Lead.js";
+import { State } from "../models/State.js";
+import { City } from "../models/City.js";
+import { Location } from "../models/Location.js";
 
 export const sendMail = catchAsyncError(async (req, res, next) => {
   const { subject, text } = req.body;
@@ -76,38 +79,74 @@ export const sendMail = catchAsyncError(async (req, res, next) => {
   }
 });
 
-// export const sendMail = catchAsyncError(async (req, res, next) => {
-//   const { to, subject, text } = req.body;
+export const getStateInfoFromSlug = catchAsyncError(async (req, res, next) => {
+  const slug = req.params.stateSlug;
 
-//   if (!to) return next(new ErrorHandler("Enter to", 401));
-//   if (!subject) return next(new ErrorHandler("Enter subject", 401));
-//   if (!text) return next(new ErrorHandler("Enter text", 401));
-//   const transporter = createTransport({
-//     host: process.env.SMTP_HOST,
-//     port: process.env.SMTP_PORT,
-//     secure: true,
-//     auth: {
-//       user: "sales@virtualxcel.in",
-//       pass: "Sales@virtualxcel",
-//     },
-//     debug: true,
-//   });
+  if (!slug) return next(new ErrorHandler("Please provide slug !", 404));
 
-//   await transporter.sendMail({
-//     from: "sales@virtualxcel.in",
-//     to: "sales@virtualxcel.in",
-//     subject,
-//     html: text,
-//   });
-//   await transporter.sendMail({
-//     from: "sales@virtualxcel.in",
-//     to: "coworktown99@gmail.com",
-//     subject,
-//     html: text,
-//   });
+  const state = await State.findOne({ slug });
 
-//   res.status(200).json({
-//     success: true,
-//     message: `Email Send to ${to}`,
-//   });
-// });
+  if (!state) return next(new ErrorHandler("No State Found !", 404));
+
+  res.status(200).json({
+    success: true,
+    message: "State Info Fetched Successfully !",
+    state,
+  });
+});
+
+export const getCityInfoFromSlug = catchAsyncError(async (req, res, next) => {
+  const { stateSlug, citySlug } = req.params;
+
+  if (!stateSlug || !citySlug)
+    return next(new ErrorHandler("Please provide both slug !", 404));
+
+  const state = await State.findOne({ slug: stateSlug.toLowerCase() });
+  if (!state) return next(new ErrorHandler("State Not Found !", 404));
+
+  const city = await City.findOne({
+    slug: citySlug.toLowerCase(),
+    stateId: state._id,
+  });
+  if (!city) return next(new ErrorHandler("City Not Found !", 404));
+
+  res.status(200).json({
+    success: true,
+    message: "City Info Fetched Successfully !",
+    city,
+  });
+});
+
+export const getSimilarCities = catchAsyncError(async (req, res, next) => {
+  const { stateId, cityId } = req.params;
+  if (!stateId) return next(new ErrorHandler("Please provide State ID !", 404));
+  if (!cityId) return next(new ErrorHandler("Please provide City ID !", 404));
+
+  const similarCities = await City.find({ stateId, _id: { $ne: cityId } });
+
+  res.status(200).json({
+    success: true,
+    message: "Similar Cities Fetched Successfully",
+    count: similarCities.length,
+    similarCities,
+  });
+});
+
+export const getSimilarLocations = catchAsyncError(async (req, res, next) => {
+  const { cityId, locationId } = req.params;
+  if (!cityId) return next(new ErrorHandler("Please provide City ID !", 404));
+  if (!locationId)
+    return next(new ErrorHandler("Please provide Location ID !", 404));
+
+  const similarLocations = await Location.find({
+    cityId,
+    _id: { $ne: locationId },
+  });
+
+  res.status(200).json({
+    success: true,
+    message: "Similar Locations Fetched Successfully",
+    count: similarLocations.length,
+    similarLocations,
+  });
+});

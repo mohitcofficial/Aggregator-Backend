@@ -39,12 +39,12 @@ import city from "./routes/cityRoutes.js";
 import location from "./routes/locationRoutes.js";
 import lead from "./routes/leadRoutes.js";
 
-app.use("/api/v1", user);
 app.use("/api/v1", admin);
 app.use("/api/v1", state);
 app.use("/api/v1", city);
 app.use("/api/v1", location);
 app.use("/api/v1", lead);
+app.use("/api/v1/client", user);
 
 app.use(ErrorMiddleware);
 export default app;

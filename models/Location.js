@@ -6,6 +6,9 @@ const locationSchema = mongoose.Schema(
       type: String,
       require: [true, "City name is mandatory !"],
     },
+    slug: {
+      type: String,
+    },
     cityId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "City",
@@ -67,5 +70,10 @@ const locationSchema = mongoose.Schema(
   },
   { timestamps: true }
 );
+
+locationSchema.pre("save", function (next) {
+  this.slug = this.name.toLowerCase().replace(/\s+/g, "-");
+  next();
+});
 
 export const Location = mongoose.model("Location", locationSchema);

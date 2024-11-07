@@ -8,6 +8,9 @@ const citySchema = mongoose.Schema(
       type: String,
       require: [true, "City name is mandatory !"],
     },
+    slug: {
+      type: String,
+    },
     stateId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "State",
@@ -74,6 +77,11 @@ citySchema.pre("findOneAndDelete", async function (next) {
   if (publicIdsToDelete.length > 0)
     await deleteManyFromCloudinary(publicIdsToDelete);
 
+  next();
+});
+
+citySchema.pre("save", function (next) {
+  this.slug = this.name.toLowerCase().replace(/\s+/g, "-");
   next();
 });
 

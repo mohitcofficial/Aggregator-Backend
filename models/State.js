@@ -8,6 +8,10 @@ const stateSchema = mongoose.Schema(
     name: {
       type: String,
       require: [true, "State name is mandatory !"],
+      unique: true,
+    },
+    slug: {
+      type: String,
     },
     bannerImage: [
       {
@@ -66,6 +70,11 @@ stateSchema.pre("findOneAndDelete", async function (next) {
 
   await City.deleteMany({ stateId });
 
+  next();
+});
+
+stateSchema.pre("save", function (next) {
+  this.slug = this.name.toLowerCase().replace(/\s+/g, "-");
   next();
 });
 
