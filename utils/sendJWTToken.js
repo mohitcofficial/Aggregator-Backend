@@ -18,7 +18,7 @@ export const sendJWTToken = (res, user, message, statusCode = 200) => {
       // for development false
       secure: true,
       httpOnly: true,
-      domain: ".coworktown.com",
+      // domain: ".coworktown.com",
     })
     .json({
       success: true,

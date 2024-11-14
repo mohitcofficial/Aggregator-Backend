@@ -69,7 +69,7 @@ export const logout = catchAsyncError(async (req, res, next) => {
       httpOnly: true,
       secure: true,
       sameSite: "none",
-      domain: ".coworktown.com",
+      // domain: ".coworktown.com",
     })
     .json({
       success: true,

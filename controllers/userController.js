@@ -71,12 +71,11 @@ export const sendMail = catchAsyncError(async (req, res, next) => {
         new ErrorHandler("Something Went Wrong while sending email", 400)
       );
     }
-
-    res.status(200).json({
-      success: true,
-      message: `Email Send to ${to}`,
-    });
   }
+  res.status(200).json({
+    success: true,
+    message: `Email Send to ${to}`,
+  });
 });
 
 export const getStateInfoFromSlug = catchAsyncError(async (req, res, next) => {
