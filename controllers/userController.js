@@ -52,7 +52,7 @@ export const sendMail = catchAsyncError(async (req, res, next) => {
   const { name, email, phoneNumber, requirement } = req.body;
 
   let location = req.body;
-  if (!location) location = "Not Mentioned";
+  if (!location || location.length === 0) location = "Not Mentioned";
 
   if (name && email && phoneNumber && requirement) {
     try {

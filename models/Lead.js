@@ -35,7 +35,6 @@ const leadSchema = mongoose.Schema(
       required: [true, "Requirement is mandatory!"],
       trim: true,
       maxlength: [500, "Requirement cannot exceed 500 characters!"],
-      set: (value) => validator.escape(value),
     },
     status: {
       type: String,
