@@ -49,9 +49,12 @@ export const sendMail = catchAsyncError(async (req, res, next) => {
     html: text,
   });
 
-  const { name, email, phoneNumber, requirement, location } = req.body;
+  const { name, email, phoneNumber, requirement } = req.body;
 
-  if (name && email && phoneNumber && requirement && location) {
+  let location = req.body;
+  if (!location) location = "Not Mentioned";
+
+  if (name && email && phoneNumber && requirement) {
     try {
       const lead = await Lead.create({
         name,
