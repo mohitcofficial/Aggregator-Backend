@@ -2,6 +2,7 @@ import express from "express";
 import { isAuthenticated } from "../middleware/auth.js";
 import { multipleUpload, singleUpload } from "../middleware/multer.js";
 import {
+  addMoreImageToLocation,
   addNewLocation,
   deleteLocation,
   deleteLocationImage,
@@ -17,6 +18,9 @@ router.route("/location").post(isAuthenticated, multipleUpload, addNewLocation);
 router
   .route("/location/:id")
   .put(isAuthenticated, singleUpload, updateLocation);
+router
+  .route("/location/image/:id")
+  .post(isAuthenticated, singleUpload, addMoreImageToLocation);
 router
   .route("/location/image/:id")
   .put(isAuthenticated, singleUpload, updateLocationImage);

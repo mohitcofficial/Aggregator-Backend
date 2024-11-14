@@ -222,6 +222,48 @@ export const updateLocationImage = catchAsyncError(async (req, res, next) => {
   });
 });
 
+export const addMoreImageToLocation = catchAsyncError(
+  async (req, res, next) => {
+    const id = req.params.id;
+    const image = req.file;
+    if (!id) return next(new ErrorHandler("Location ID is mandatory !", 400));
+    if (!image) return next(new ErrorHandler("No image provided!", 400));
+
+    const location = await Location.findById(id);
+    if (!location)
+      return next(new ErrorHandler("No location found with this ID !", 404));
+
+    if (location?.images?.length === 6)
+      return next(
+        new ErrorHandler(
+          "Already 6 images present delete images or try replacing !",
+          400
+        )
+      );
+
+    let newImage;
+    try {
+      newImage = await uploadToCloudinary(image);
+      location.images.push(newImage[0]);
+      await location.save();
+    } catch (error) {
+      if (newImage && newImage[0]?.public_id) {
+        try {
+          await deleteFromCloudinary(newImage[0]?.public_id);
+        } catch (deleteError) {
+          console.error("Failed to delete image from Cloudinary:", deleteError);
+        }
+      }
+      return next(new ErrorHandler("Something Went Wrong !", 401));
+    }
+
+    res.status(201).json({
+      message: "Image Added Successfully !",
+      location,
+    });
+  }
+);
+
 export const getAllLocations = catchAsyncError(async (req, res, next) => {
   const locations = await Location.find({}).populate("cityId", "name");
 
