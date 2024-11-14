@@ -172,7 +172,9 @@ export const getCitiesWithInState = catchAsyncError(async (req, res, next) => {
 
   if (!stateId) return next(new ErrorHandler("Please provide State ID !", 404));
 
-  const cities = await City.find({ stateId });
+  const cities = await City.find({ stateId }).sort({
+    rating: -1,
+  });
 
   res.status(200).json({
     success: true,
@@ -187,7 +189,9 @@ export const getLocationsWithInCity = catchAsyncError(
 
     if (!cityId) return next(new ErrorHandler("Please provide City ID !", 404));
 
-    const locations = await Location.find({ cityId });
+    const locations = await Location.find({ cityId }).sort({
+      rating: -1,
+    });
 
     res.status(200).json({
       success: true,
@@ -197,3 +201,25 @@ export const getLocationsWithInCity = catchAsyncError(
     });
   }
 );
+
+export const getTrendingCities = catchAsyncError(async (req, res, next) => {
+  const cities = await City.find({})
+    .populate("stateId", "name slug")
+    .sort({ rating: -1 })
+    .limit(10);
+
+  res.status(200).json({
+    message: "Trending Cities Fetched Successfully !",
+    count: cities.length,
+    cities,
+  });
+});
+export const getTrendingStates = catchAsyncError(async (req, res, next) => {
+  const states = await State.find({}).sort({ rating: -1 }).limit(10);
+
+  res.status(200).json({
+    message: "Trending States Fetched Successfully !",
+    count: states.length,
+    states,
+  });
+});

@@ -25,7 +25,7 @@ app.use(
     origin: [
       "http://localhost:3000",
       "https://admin.coworktown.com",
-      "https://.coworktown.com",
+      "https://coworktown.com",
     ],
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE"],

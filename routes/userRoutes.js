@@ -7,8 +7,12 @@ import {
   getSimilarLocations,
   getSimilarStates,
   getStateInfoFromSlug,
+  getTrendingCities,
+  getTrendingStates,
   sendMail,
 } from "../controllers/userController.js";
+import { getAllStates } from "../controllers/stateController.js";
+import { getAllCity } from "../controllers/cityController.js";
 
 const router = express.Router();
 
@@ -20,5 +24,9 @@ router.route("/locations/similar/:cityId/:locationId").get(getSimilarLocations);
 router.route("/states/similar/:stateId").get(getSimilarStates);
 router.route("/cities/:stateId").get(getCitiesWithInState);
 router.route("/locations/:cityId").get(getLocationsWithInCity);
+router.route("/states").get(getAllStates);
+router.route("/cities").get(getAllCity);
+router.route("/trending/cities").get(getTrendingCities);
+router.route("/trending/states").get(getTrendingStates);
 
 export default router;
