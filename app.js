@@ -12,7 +12,7 @@ config({
 const app = express();
 const limiter = rateLimit({
   windowMs: 10 * 1000,
-  limit: 10,
+  limit: 20,
   standardHeaders: "draft-7",
   message: "Too many request, please try again later",
 });
