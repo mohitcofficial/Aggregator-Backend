@@ -3,12 +3,21 @@ import { config } from "dotenv";
 import ErrorMiddleware from "./middleware/Error.js";
 import cookieParser from "cookie-parser";
 import cors from "cors";
+import { rateLimit } from "express-rate-limit";
 
 config({
   path: "./config/config.env",
 });
 
 const app = express();
+const limiter = rateLimit({
+  windowMs: 10 * 1000,
+  limit: 10,
+  standardHeaders: "draft-7",
+  message: "Too many request, please try again later",
+});
+
+app.use(limiter);
 
 app.use(express.json());
 
