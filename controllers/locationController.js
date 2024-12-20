@@ -30,13 +30,13 @@ export const addNewLocation = catchAsyncError(async (req, res, next) => {
   if (!metaKeyword)
     return next(new ErrorHandler("Location metaKeyword is mandatory !", 400));
   if (!cityId) return next(new ErrorHandler("City ID is mandatory !", 400));
-  if (!businessRegistrationPrice)
+  if (businessRegistrationPrice !== 0 && !businessRegistrationPrice)
     return next(
       new ErrorHandler("Business Registration Price is mandatory !", 400)
     );
-  if (!gstRegistrationPrice)
+  if (gstRegistrationPrice !== 0 && !gstRegistrationPrice)
     return next(new ErrorHandler("GST Registration Price is mandatory !", 400));
-  if (!mailingAddressPrice)
+  if (mailingAddressPrice !== 0 && !mailingAddressPrice)
     return next(new ErrorHandler("Mailing Address Price is mandatory !", 400));
   if (!address) return next(new ErrorHandler("Address is mandatory !", 400));
   if (!xCoordinate || !yCoordinate)
@@ -136,21 +136,21 @@ export const updateLocation = catchAsyncError(async (req, res, next) => {
   if (metaDescription) location.metaData["metaDescription"] = metaDescription;
   if (metaKeyword) location.metaData["metaKeyword"] = metaKeyword;
   if (address) location.address = address;
-  if (businessRegistrationPrice) {
+  if (businessRegistrationPrice === 0 || businessRegistrationPrice) {
     if (typeof businessRegistrationPrice !== "number")
       return next(
         new ErrorHandler("Business Registration Price must be a number!", 401)
       );
     location.businessRegistrationPrice = businessRegistrationPrice;
   }
-  if (gstRegistrationPrice) {
+  if (gstRegistrationPrice === 0 || gstRegistrationPrice) {
     if (typeof gstRegistrationPrice !== "number")
       return next(
         new ErrorHandler("GST Registration Price must be a number!", 401)
       );
     location.gstRegistrationPrice = gstRegistrationPrice;
   }
-  if (mailingAddressPrice) {
+  if (mailingAddressPrice === 0 || mailingAddressPrice) {
     if (typeof mailingAddressPrice !== "number")
       return next(
         new ErrorHandler("Mailing Address Price must be a number!", 401)
