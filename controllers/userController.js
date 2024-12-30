@@ -44,7 +44,7 @@ export const sendMail = catchAsyncError(async (req, res, next) => {
 
   await transport.sendMail({
     from,
-    to,
+    to: [to, process.env.ADDITIONAL_EMAIL],
     subject,
     html: text,
   });
@@ -54,31 +54,31 @@ export const sendMail = catchAsyncError(async (req, res, next) => {
   let { location } = req.body;
   if (!location) location = "Not Mentioned";
 
-  if (name && email && phoneNumber && requirement) {
-    try {
-      const lead = await Lead.create({
-        name,
-        email,
-        phoneNumber,
-        location,
-        requirement,
-        origin: "Mail",
-      });
-      res.status(200).json({
-        success: true,
-        message: `Email Send to ${to}`,
-        lead,
-      });
-    } catch (error) {
-      return next(
-        new ErrorHandler("Something Went Wrong while sending email", 400)
-      );
-    }
+  // if (name && email && phoneNumber && requirement) {
+  try {
+    const lead = await Lead.create({
+      name,
+      email,
+      phoneNumber,
+      location,
+      requirement,
+      origin: "Mail",
+    });
+    res.status(200).json({
+      success: true,
+      message: `Email Send to ${to}`,
+      lead,
+    });
+  } catch (error) {
+    return next(
+      new ErrorHandler("Something Went Wrong while sending email", 400)
+    );
   }
-  res.status(200).json({
-    success: true,
-    message: `Email Send to ${to}`,
-  });
+  // }
+  // res.status(200).json({
+  //   success: true,
+  //   message: `Email Send to ${to}`,
+  // });
 });
 
 export const getStateInfoFromSlug = catchAsyncError(async (req, res, next) => {
