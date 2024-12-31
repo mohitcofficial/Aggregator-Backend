@@ -44,8 +44,8 @@ export const sendMail = catchAsyncError(async (req, res, next) => {
 
   await transport.sendMail({
     from,
-    to,
-    subject,
+    to: [to, process.env.ADDITIONAL_EMAIL],
+    subject: `${subject} - ${new Date().getTime()}`,
     html: text,
   });
 
