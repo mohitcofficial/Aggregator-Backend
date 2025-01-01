@@ -2,6 +2,7 @@ import express from "express";
 import {
   getCitiesWithInState,
   getCityInfoFromSlug,
+  getLocationInfoFromSlug,
   getLocationsWithInCity,
   getSimilarCities,
   getSimilarLocations,
@@ -19,6 +20,9 @@ const router = express.Router();
 router.route("/send-email").post(sendMail);
 router.route("/state/:stateSlug").get(getStateInfoFromSlug);
 router.route("/state/:stateSlug/city/:citySlug").get(getCityInfoFromSlug);
+router
+  .route("/state/:stateSlug/city/:citySlug/location/:locationSlug")
+  .get(getLocationInfoFromSlug);
 router.route("/cities/similar/:stateId/:cityId").get(getSimilarCities);
 router.route("/locations/similar/:cityId/:locationId").get(getSimilarLocations);
 router.route("/states/similar/:stateId").get(getSimilarStates);

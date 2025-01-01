@@ -118,6 +118,35 @@ export const getCityInfoFromSlug = catchAsyncError(async (req, res, next) => {
     city,
   });
 });
+export const getLocationInfoFromSlug = catchAsyncError(
+  async (req, res, next) => {
+    const { stateSlug, citySlug, locationSlug } = req.params;
+
+    if (!stateSlug || !citySlug || !locationSlug)
+      return next(new ErrorHandler("Please provide both slug !", 404));
+
+    const state = await State.findOne({ slug: stateSlug.toLowerCase() });
+    if (!state) return next(new ErrorHandler("State Not Found !", 404));
+
+    const city = await City.findOne({
+      slug: citySlug.toLowerCase(),
+      stateId: state._id,
+    }).populate("stateId", "name");
+    if (!city) return next(new ErrorHandler("City Not Found !", 404));
+
+    const location = await Location.findOne({
+      slug: locationSlug.toLowerCase(),
+      cityId: city._id,
+    }).populate("cityId", "name");
+    if (!location) return next(new ErrorHandler("Location Not Found !", 404));
+
+    res.status(200).json({
+      success: true,
+      message: "Location Info Fetched Successfully !",
+      location,
+    });
+  }
+);
 
 export const getSimilarStates = catchAsyncError(async (req, res, next) => {
   const { stateId } = req.params;
@@ -140,7 +169,10 @@ export const getSimilarCities = catchAsyncError(async (req, res, next) => {
   if (!stateId) return next(new ErrorHandler("Please provide State ID !", 404));
   if (!cityId) return next(new ErrorHandler("Please provide City ID !", 404));
 
-  const similarCities = await City.find({ stateId, _id: { $ne: cityId } });
+  const similarCities = await City.find({
+    stateId,
+    _id: { $ne: cityId },
+  }).populate("stateId", "name");
 
   res.status(200).json({
     success: true,
@@ -159,7 +191,7 @@ export const getSimilarLocations = catchAsyncError(async (req, res, next) => {
   const similarLocations = await Location.find({
     cityId,
     _id: { $ne: locationId },
-  });
+  }).populate("cityId", "name");
 
   res.status(200).json({
     success: true,
