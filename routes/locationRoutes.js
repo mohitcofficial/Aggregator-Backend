@@ -29,5 +29,6 @@ router.route("/location/:id").delete(isAuthenticated, deleteLocation);
 router
   .route("/location/image/:id")
   .delete(isAuthenticated, deleteLocationImage);
+router.route("/locations").get(isAuthenticated, getAllLocations);
 
 export default router;
