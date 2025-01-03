@@ -14,6 +14,11 @@ import {
 } from "../controllers/userController.js";
 import { getAllStates } from "../controllers/stateController.js";
 import { getAllCity } from "../controllers/cityController.js";
+import {
+  checkout,
+  getRazorpayKey,
+  paymentVerification,
+} from "../controllers/paymentController.js";
 
 const router = express.Router();
 
@@ -32,5 +37,10 @@ router.route("/states").get(getAllStates);
 router.route("/cities").get(getAllCity);
 router.route("/trending/cities").get(getTrendingCities);
 router.route("/trending/states").get(getTrendingStates);
+
+//payment
+router.route("/checkout").post(checkout);
+router.route("/getkey").get(getRazorpayKey);
+router.route("/paymentverification").post(paymentVerification);
 
 export default router;

@@ -265,7 +265,14 @@ export const addMoreImageToLocation = catchAsyncError(
 );
 
 export const getAllLocations = catchAsyncError(async (req, res, next) => {
-  const locations = await Location.find({}).populate("cityId", "name");
+  const locations = await Location.find({}).populate({
+    path: "cityId",
+    select: "slug stateId",
+    populate: {
+      path: "stateId",
+      select: "slug",
+    },
+  });
 
   res.status(200).json({
     message: "City Fetched Successfully !",
