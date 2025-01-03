@@ -19,6 +19,7 @@ import {
   getRazorpayKey,
   paymentVerification,
 } from "../controllers/paymentController.js";
+import { getAllLocations } from "../controllers/locationController.js";
 
 const router = express.Router();
 
@@ -35,6 +36,7 @@ router.route("/cities/:stateId").get(getCitiesWithInState);
 router.route("/locations/:cityId").get(getLocationsWithInCity);
 router.route("/states").get(getAllStates);
 router.route("/cities").get(getAllCity);
+router.route("/locations").get(getAllLocations);
 router.route("/trending/cities").get(getTrendingCities);
 router.route("/trending/states").get(getTrendingStates);
 

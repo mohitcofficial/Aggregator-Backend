@@ -24,7 +24,6 @@ router
 router
   .route("/location/image/:id")
   .put(isAuthenticated, singleUpload, updateLocationImage);
-router.route("/locations").get(isAuthenticated, getAllLocations);
 router.route("/location/:id").get(isAuthenticated, getLocationInfo);
 router.route("/location/:id").delete(isAuthenticated, deleteLocation);
 router
