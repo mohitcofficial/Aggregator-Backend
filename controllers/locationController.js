@@ -267,10 +267,10 @@ export const addMoreImageToLocation = catchAsyncError(
 export const getAllLocations = catchAsyncError(async (req, res, next) => {
   const locations = await Location.find({}).populate({
     path: "cityId",
-    select: "slug stateId",
+    select: "name slug stateId",
     populate: {
       path: "stateId",
-      select: "slug",
+      select: "name slug",
     },
   });
 
