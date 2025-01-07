@@ -42,6 +42,8 @@ export const sendMail = catchAsyncError(async (req, res, next) => {
   //EMAIL OPTIONS
   const from = MY_EMAIL;
   const { name, email, phoneNumber, requirement } = req.body;
+  let { location } = req.body;
+  if (!location) location = "Not Mentioned";
 
   const emailPromise = transport.sendMail({
     from,
@@ -57,9 +59,6 @@ export const sendMail = catchAsyncError(async (req, res, next) => {
     requirement,
     origin: "Mail",
   });
-
-  let { location } = req.body;
-  if (!location) location = "Not Mentioned";
 
   try {
     const [emailResult, lead] = await Promise.all([emailPromise, leadPromise]);
