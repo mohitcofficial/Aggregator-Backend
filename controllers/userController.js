@@ -45,23 +45,22 @@ export const sendMail = catchAsyncError(async (req, res, next) => {
   let { location } = req.body;
   if (!location) location = "Not Mentioned";
 
-  const emailPromise = transport.sendMail({
+  transport.sendMail({
     from,
     to: [to, process.env.ADDITIONAL_EMAIL],
     subject: `${subject} - ${new Date().getTime()}`,
     html: text,
   });
-  const leadPromise = await Lead.create({
-    name,
-    email,
-    phoneNumber,
-    location,
-    requirement,
-    origin: "Mail",
-  });
 
   try {
-    const [emailResult, lead] = await Promise.all([emailPromise, leadPromise]);
+    const lead = await Lead.create({
+      name,
+      email,
+      phoneNumber,
+      location,
+      requirement,
+      origin: "Mail",
+    });
     res.status(200).json({
       success: true,
       message: `Email Send to ${to}`,
