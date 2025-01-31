@@ -32,14 +32,16 @@ app.use(cookieParser());
 app.use(
   cors({
     origin: [
-      "http://localhost:3000",
-      "http://localhost:3001",
+      // "http://localhost:3000",
+      // "http://localhost:3001",
       "https://admin.coworktown.com",
       "https://coworktown.com",
       "https://www.coworktown.com",
       "https://virtualxcel.in",
       "https://www.virtualxcel.in",
       "https://admin.virtualxcel.in",
+      "https://virtualxcel.co.in",
+      "https://www.virtualxcel.co.in",
     ],
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE"],
