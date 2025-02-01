@@ -44,7 +44,7 @@ export const sendMail = catchAsyncError(async (req, res, next) => {
   const { name, email, phoneNumber } = req.body;
   let { location, requirement } = req.body;
   if (!location || location.length == 0) location = "Not Mentioned";
-  if (!requirement || location.length == 0) location = "Not Mentioned";
+  if (!requirement || location.length == 0) requirement = "Not Mentioned";
 
   transport.sendMail({
     from,
