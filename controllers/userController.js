@@ -15,30 +15,9 @@ export const sendMail = catchAsyncError(async (req, res, next) => {
   const CLIENT_ID = process.env.CLIENT_ID;
   const CLIENT_SECRET = process.env.CLIENT_SECRET;
   const REDIRECT_URI = process.env.REDIRECT_URI;
-  const oAuth2Client = new google.auth.OAuth2(
-    CLIENT_ID,
-    CLIENT_SECRET,
-    REDIRECT_URI
-  );
-  oAuth2Client.setCredentials({ refresh_token: REFRESH_TOKEN });
-  const ACCESS_TOKEN = await oAuth2Client.getAccessToken();
+
   const to = process.env.to;
   const MY_EMAIL = process.env.to;
-  const transport = createTransport({
-    service: "gmail",
-    auth: {
-      type: "OAuth2",
-      user: MY_EMAIL,
-      clientId: CLIENT_ID,
-      clientSecret: CLIENT_SECRET,
-      refreshToken: REFRESH_TOKEN,
-      accessToken: ACCESS_TOKEN,
-    },
-    tls: {
-      rejectUnauthorized: true,
-    },
-  });
-
   //EMAIL OPTIONS
   const from = MY_EMAIL;
   const { name, email, phoneNumber } = req.body;
@@ -46,12 +25,19 @@ export const sendMail = catchAsyncError(async (req, res, next) => {
   if (!location || location.length == 0) location = "Not Mentioned";
   if (!requirement || location.length == 0) requirement = "Not Mentioned";
 
-  transport.sendMail({
-    from,
-    to: [to, process.env.ADDITIONAL_EMAIL],
-    subject: `${subject} - ${new Date().getTime()}`,
-    html: text,
-  });
+  let ACCESS_TOKEN;
+  try {
+    const oAuth2Client = new google.auth.OAuth2(
+      CLIENT_ID,
+      CLIENT_SECRET,
+      REDIRECT_URI
+    );
+    oAuth2Client.setCredentials({ refresh_token: REFRESH_TOKEN });
+    ACCESS_TOKEN = await oAuth2Client.getAccessToken();
+  } catch (error) {
+    // console.error("Google OAuth failed:", error.message);
+    ACCESS_TOKEN = null;
+  }
 
   try {
     const lead = await Lead.create({
@@ -62,15 +48,44 @@ export const sendMail = catchAsyncError(async (req, res, next) => {
       requirement,
       origin: "Mail",
     });
-    res.status(200).json({
-      success: true,
-      message: `Email Send to ${to}`,
-      lead,
-    });
+
+    if (ACCESS_TOKEN) {
+      const transport = createTransport({
+        service: "gmail",
+        auth: {
+          type: "OAuth2",
+          user: MY_EMAIL,
+          clientId: CLIENT_ID,
+          clientSecret: CLIENT_SECRET,
+          refreshToken: REFRESH_TOKEN,
+          accessToken: ACCESS_TOKEN,
+        },
+        tls: {
+          rejectUnauthorized: true,
+        },
+      });
+
+      transport.sendMail({
+        from,
+        to: [to, process.env.ADDITIONAL_EMAIL],
+        subject: `${subject} - ${new Date().getTime()}`,
+        html: text,
+      });
+      res.status(200).json({
+        success: true,
+        message: `Email Send to ${to}`,
+        lead,
+      });
+    } else {
+      return res.status(200).json({
+        success: true,
+        message: "Email could not be sent, but lead has been stored.",
+        lead,
+      });
+    }
   } catch (error) {
-    return next(
-      new ErrorHandler("Something Went Wrong while sending email", 400)
-    );
+    // console.error("Error storing lead or sending email:", error.message)
+    return next(new ErrorHandler("Something went wrong", 400));
   }
 });
 export const sendOnboardingEmail = catchAsyncError(async (req, res, next) => {
