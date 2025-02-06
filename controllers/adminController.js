@@ -3,6 +3,7 @@ import { Admin } from "../models/Admin.js";
 import ErrorHandler from "../utils/ErrorHandler.js";
 import bcrypt from "bcrypt";
 import { sendJWTToken } from "../utils/sendJWTToken.js";
+import { admin } from "googleapis/build/src/apis/admin/index.js";
 
 export const createAdmin = catchAsyncError(async (req, res, next) => {
   const { username, email, password, securityKey } = req.body;
@@ -12,8 +13,8 @@ export const createAdmin = catchAsyncError(async (req, res, next) => {
   if (!securityKey)
     return next(new ErrorHandler("Please provide security key", 400));
 
-  if (securityKey !== "Bsmr@1986")
-    return next(new ErrorHandler("Please provide security key", 401));
+  if (securityKey !== process.env.SECURITY_KEY)
+    return next(new ErrorHandler("Invalid security key", 401));
 
   const flag = await Admin.findOne({
     $or: [{ username: username }, { email: email }],
@@ -32,6 +33,55 @@ export const createAdmin = catchAsyncError(async (req, res, next) => {
   res.status(201).json({
     success: true,
     admin,
+  });
+});
+export const deleteAdmin = catchAsyncError(async (req, res, next) => {
+  const { id, email, securityKey } = req.body;
+  if (!id && !email)
+    return next(
+      new ErrorHandler("Please provide ID or email of the admin", 400)
+    );
+
+  if (!securityKey)
+    return next(new ErrorHandler("Please provide security key", 400));
+
+  if (securityKey !== process.env.SECURITY_KEY)
+    return next(new ErrorHandler("Invalid security key", 401));
+
+  let admin;
+
+  if (id) {
+    admin = await Admin.findByIdAndDelete(id);
+  } else {
+    admin = await Admin.findOneAndDelete({ email });
+  }
+
+  if (!admin) {
+    return next(new ErrorHandler("Admin not found", 404));
+  }
+
+  res.status(201).json({
+    success: true,
+    message: "Admin Deleted Successfully !",
+    admin,
+  });
+});
+export const getAllAdmins = catchAsyncError(async (req, res, next) => {
+  const { securityKey } = req.body;
+
+  if (!securityKey)
+    return next(new ErrorHandler("Please provide security key", 400));
+
+  if (securityKey !== process.env.SECURITY_KEY)
+    return next(new ErrorHandler("Invalid security key", 401));
+
+  const admins = await Admin.find({});
+
+  res.status(201).json({
+    success: true,
+    count: admins.length,
+    message: "Admin Fetched Successfully !",
+    admins,
   });
 });
 
