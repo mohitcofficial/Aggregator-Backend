@@ -84,7 +84,7 @@ export const updateState = catchAsyncError(async (req, res, next) => {
 });
 
 export const getAllStates = catchAsyncError(async (req, res, next) => {
-  const states = await State.find({});
+  const states = await State.find({}).sort({ name: 1 });
 
   res.status(200).json({
     message: "States Fetched Successfully !",
