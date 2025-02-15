@@ -11,6 +11,7 @@ import {
   getTrendingCities,
   getTrendingStates,
   sendMail,
+  sendMail2,
   sendOnboardingEmail,
 } from "../controllers/userController.js";
 import { getAllStates } from "../controllers/stateController.js";
@@ -25,6 +26,7 @@ import { getAllLocations } from "../controllers/locationController.js";
 const router = express.Router();
 
 router.route("/send-email").post(sendMail);
+router.route("/send-email2").post(sendMail2);
 router.route("/send-onboarding-email").post(sendOnboardingEmail);
 router.route("/state/:stateSlug").get(getStateInfoFromSlug);
 router.route("/state/:stateSlug/city/:citySlug").get(getCityInfoFromSlug);

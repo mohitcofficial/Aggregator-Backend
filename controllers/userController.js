@@ -6,6 +6,7 @@ import { Lead } from "../models/Lead.js";
 import { State } from "../models/State.js";
 import { City } from "../models/City.js";
 import { Location } from "../models/Location.js";
+import { sendEmailToVision } from "../utils/sendEmail.js";
 
 export const sendMail = catchAsyncError(async (req, res, next) => {
   const { subject, text } = req.body;
@@ -88,6 +89,25 @@ export const sendMail = catchAsyncError(async (req, res, next) => {
     return next(new ErrorHandler("Something went wrong", 400));
   }
 });
+
+export const sendMail2 = catchAsyncError(async (req, res, next) => {
+  const { subject, text } = req.body;
+  if (!subject) return next(new ErrorHandler("Enter subject", 401));
+  if (!text) return next(new ErrorHandler("Enter text", 401));
+  const to = process.env.user;
+  let { location, requirement } = req.body;
+  if (!location || location.length == 0) location = "Not Mentioned";
+  if (!requirement || location.length == 0) requirement = "Not Mentioned";
+
+  const updatedSubject = `${subject} - ${new Date().getTime()}`;
+
+  sendEmailToVision(to, updatedSubject, text);
+  res.status(200).json({
+    success: true,
+    message: `Email Send to ${to}`,
+  });
+});
+
 export const sendOnboardingEmail = catchAsyncError(async (req, res, next) => {
   const { subject, text } = req.body;
   if (!subject) return next(new ErrorHandler("Enter subject", 401));
