@@ -23,7 +23,7 @@ export const sendEmailToVision = async (to, subject, text) => {
       from: user,
       to,
       subject,
-      text,
+      html: text,
     });
 
     // console.log(`Email sent successfully to ${to}: ${info.response}`);
