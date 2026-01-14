@@ -13,6 +13,7 @@ import {
   sendMail,
   sendMail2,
   sendOnboardingEmail,
+  sendTestMail,
 } from "../controllers/userController.js";
 import { getAllStates } from "../controllers/stateController.js";
 import { getAllCity } from "../controllers/cityController.js";
@@ -27,6 +28,7 @@ const router = express.Router();
 
 router.route("/send-email").post(sendMail);
 router.route("/send-email2").post(sendMail2);
+router.route("/send-test-email").post(sendTestMail);
 router.route("/send-onboarding-email").post(sendOnboardingEmail);
 router.route("/state/:stateSlug").get(getStateInfoFromSlug);
 router.route("/state/:stateSlug/city/:citySlug").get(getCityInfoFromSlug);
