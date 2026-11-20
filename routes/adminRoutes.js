@@ -20,21 +20,31 @@ const router = express.Router();
 router.route("/admin/create").post(singleUpload, createAdmin);
 router
   .route("/user/create")
-  .post(singleUpload, isAuthenticated, authorizeRoles("admin"), createUser);
+  .post(
+    singleUpload,
+    isAuthenticated,
+    authorizeRoles("super_admin", "admin"),
+    createUser,
+  );
 router
   .route("/user/deactivate/:id")
-  .get(singleUpload, isAuthenticated, authorizeRoles("admin"), deactivateUser);
+  .get(
+    singleUpload,
+    isAuthenticated,
+    authorizeRoles("super_admin", "admin"),
+    deactivateUser,
+  );
 router.route("/admin/login").post(adminLogin);
 router
   .route("/admins")
-  .get(isAuthenticated, authorizeRoles("admin"), getAllAdmins);
+  .get(isAuthenticated, authorizeRoles("super_admin", "admin"), getAllAdmins);
 
 router
   .route("/users")
-  .get(isAuthenticated, authorizeRoles("admin"), getAllUsers);
+  .get(isAuthenticated, authorizeRoles("super_admin", "admin"), getAllUsers);
 router
   .route("/user/delete")
-  .delete(isAuthenticated, authorizeRoles("admin"), deleteUser);
+  .delete(isAuthenticated, authorizeRoles("super_admin", "admin"), deleteUser);
 router
   .route("/user/update/:id")
   .put(isAuthenticated, singleUpload, updateUserProfile);

@@ -14,24 +14,40 @@ const router = express.Router();
 
 router
   .route("/lead/:id")
-  .get(isAuthenticated, authorizeRoles("admin", "sales"), getLeadById);
+  .get(
+    isAuthenticated,
+    authorizeRoles("super_admin", "admin", "sales"),
+    getLeadById,
+  );
 router
   .route("/lead")
-  .post(isAuthenticated, authorizeRoles("admin", "sales"), createLead);
+  .post(
+    isAuthenticated,
+    authorizeRoles("super_admin", "admin", "sales"),
+    createLead,
+  );
 router
   .route("/my-leads")
   .post(isAuthenticated, authorizeRoles("sales"), getMyLeads);
 router
   .route("/leads")
-  .post(isAuthenticated, authorizeRoles("admin"), getAllLeads);
+  .post(isAuthenticated, authorizeRoles("super_admin", "admin"), getAllLeads);
 router
   .route("/lead/:id")
-  .put(isAuthenticated, authorizeRoles("admin", "sales"), updateLead);
+  .put(
+    isAuthenticated,
+    authorizeRoles("super_admin", "admin", "sales"),
+    updateLead,
+  );
 router
   .route("/lead/:id")
-  .delete(isAuthenticated, authorizeRoles("admin"), deleteLead);
+  .delete(isAuthenticated, authorizeRoles("super_admin", "admin"), deleteLead);
 router
   .route("/lead/:leadId/followup/:followUpId")
-  .delete(isAuthenticated, authorizeRoles("admin"), deleteFollowUp);
+  .delete(
+    isAuthenticated,
+    authorizeRoles("super_admin", "admin"),
+    deleteFollowUp,
+  );
 
 export default router;

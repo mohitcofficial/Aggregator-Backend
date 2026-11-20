@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { createSuperAdmin } from "../utils/createSuperAdmin.js";
 
 export const connectDB = async () => {
   mongoose.set("strictQuery", false);
@@ -7,4 +8,6 @@ export const connectDB = async () => {
   );
 
   console.log(`MongoDB connected with ${connection.host}`);
+
+  await createSuperAdmin();
 };
