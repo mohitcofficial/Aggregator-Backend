@@ -247,17 +247,17 @@ export const adminLogin = catchAsyncError(async (req, res, next) => {
   const admin = await User.findOne({ email }).select("+password");
 
   if (!admin) return next(new ErrorHandler("Invalid email or password", 401));
-  if (admin.role !== "admin")
+  if (admin.role !== "admin" && admin.role !== "super_admin")
     return next(new ErrorHandler("Invalid email or password", 401));
-
-  if (!admin.isActive)
-    return next(
-      new ErrorHandler("Your account is deactivated. Contact admin.", 403),
-    );
 
   const isMatch = await bcrypt.compare(password, admin.password);
 
   if (!isMatch) return next(new ErrorHandler("Invalid email or password", 401));
+
+  if (!admin.isActive)
+    return next(
+      new ErrorHandler("Your account is deactive. Contact Super Admin", 401),
+    );
 
   sendJWTToken(res, admin, `Welcome Back ${admin.name}`, 200);
 });
