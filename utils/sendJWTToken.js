@@ -7,18 +7,19 @@ export const sendJWTToken = (res, user, message, statusCode = 200) => {
     "oinfiosdfnodsifisnfosifsnodfsino",
     {
       expiresIn: "2d",
-    }
+    },
   );
 
   res
     .status(statusCode)
     .cookie("authToken", jwtToken, {
       expires: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000),
-      sameSite: "none",
+      // sameSite: "none",
+      // sameSite: "lax",
       // for development false
-      secure: true,
+      secure: false,
       httpOnly: true,
-      domain: ".virtualxcel.in",
+      // domain: ".virtualxcel.in",
     })
     .json({
       success: true,

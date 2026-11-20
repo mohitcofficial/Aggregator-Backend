@@ -31,7 +31,7 @@ export const sendMail = catchAsyncError(async (req, res, next) => {
     const oAuth2Client = new google.auth.OAuth2(
       CLIENT_ID,
       CLIENT_SECRET,
-      REDIRECT_URI
+      REDIRECT_URI,
     );
     oAuth2Client.setCredentials({ refresh_token: REFRESH_TOKEN });
     ACCESS_TOKEN = await oAuth2Client.getAccessToken();
@@ -113,7 +113,7 @@ export const sendTestMail = catchAsyncError(async (req, res, next) => {
     const oAuth2Client = new google.auth.OAuth2(
       CLIENT_ID,
       CLIENT_SECRET,
-      REDIRECT_URI
+      REDIRECT_URI,
     );
     oAuth2Client.setCredentials({ refresh_token: REFRESH_TOKEN });
     ACCESS_TOKEN = await oAuth2Client.getAccessToken();
@@ -201,7 +201,7 @@ export const sendOnboardingEmail = catchAsyncError(async (req, res, next) => {
   const oAuth2Client = new google.auth.OAuth2(
     CLIENT_ID,
     CLIENT_SECRET,
-    REDIRECT_URI
+    REDIRECT_URI,
   );
   oAuth2Client.setCredentials({ refresh_token: REFRESH_TOKEN });
   const ACCESS_TOKEN = await oAuth2Client.getAccessToken();
@@ -302,7 +302,7 @@ export const getLocationInfoFromSlug = catchAsyncError(
       message: "Location Info Fetched Successfully !",
       location,
     });
-  }
+  },
 );
 
 export const getSimilarStates = catchAsyncError(async (req, res, next) => {
@@ -390,7 +390,7 @@ export const getLocationsWithInCity = catchAsyncError(
       count: locations.length,
       locations,
     });
-  }
+  },
 );
 
 export const getTrendingCities = catchAsyncError(async (req, res, next) => {

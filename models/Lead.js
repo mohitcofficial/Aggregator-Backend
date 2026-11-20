@@ -1,55 +1,101 @@
 import mongoose from "mongoose";
-import validator from "validator";
 
-const leadSchema = mongoose.Schema(
+const followUpSchema = new mongoose.Schema(
+  {
+    date: {
+      type: Date,
+      required: true,
+    },
+    note: {
+      type: String,
+      trim: true,
+    },
+    createdBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+      ref: "User",
+    },
+    lastEditedAt: {
+      type: Date,
+    },
+    lastEditedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+  },
+  { timestamps: true },
+);
+
+const leadSchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      required: [true, "Name is mandatory!"],
       trim: true,
-      minlength: [2, "Name must be at least 2 characters long!"],
-      maxlength: [50, "Name cannot exceed 50 characters!"],
-    },
-    email: {
-      type: String,
-      required: [true, "Email is mandatory!"],
-      validate: [validator.isEmail, "Please provide a valid email address!"],
     },
     phoneNumber: {
       type: String,
-      required: [true, "Phone number is mandatory!"],
-      validate: {
-        validator: (value) => validator.isLength(value, { min: 10, max: 15 }),
-        message: "Phone number must be between 10 and 15 digits!",
-      },
+      required: true,
+      index: true,
     },
-    location: {
+    email: {
       type: String,
-      required: [true, "Location is mandatory!"],
       trim: true,
-      minlength: [2, "Location must be at least 2 characters long!"],
-      maxlength: [100, "Location cannot exceed 100 characters!"],
+      lowercase: true,
     },
-    requirement: {
+
+    service: {
       type: String,
-      required: [true, "Requirement is mandatory!"],
-      trim: true,
-      maxlength: [500, "Requirement cannot exceed 500 characters!"],
+      enum: [
+        "gst_registration",
+        "business_registration",
+        "mailing_address",
+        "collaboration",
+        "coworking",
+      ],
     },
+
+    location: String,
+    budget: String,
+
+    source: {
+      type: String,
+      enum: ["mail", "call", "whatsapp", "meta", "referral"],
+      default: "mail",
+    },
+
     status: {
       type: String,
-      enum: ["Unseen", "Contacted", "Converted", "Not Interested"],
-      default: "Unseen",
+      enum: ["new", "interested", "not_interested", "unreachable", "converted"],
+      default: "new",
+      index: true,
     },
-    origin: {
+
+    assignedTo: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      index: true,
+    },
+
+    profit: {
+      type: Number,
+      default: 0,
+    },
+    convertedAt: Date,
+
+    remark: {
       type: String,
-      enum: ["Mail", "Phone", "Whatsapp", "Others"],
-      default: "Mail",
+      trim: true,
+    },
+    followUps: [followUpSchema],
+
+    createdBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
     },
   },
-  {
-    timestamps: true,
-  }
+  { timestamps: true },
 );
+
+leadSchema.index({ assignedTo: 1, createdAt: -1 });
 
 export const Lead = mongoose.model("Lead", leadSchema);

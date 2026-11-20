@@ -9,6 +9,8 @@ config({
   path: "./config/config.env",
 });
 
+app.set("trust proxy", 1);
+
 const app = express();
 const limiter = rateLimit({
   windowMs: 10 * 1000,
@@ -24,7 +26,7 @@ app.use(express.json());
 app.use(
   express.urlencoded({
     extended: true,
-  })
+  }),
 );
 
 app.use(cookieParser());
@@ -32,30 +34,30 @@ app.use(cookieParser());
 app.use(
   cors({
     origin: [
-      // "http://localhost:3000",
-      // "http://localhost:3001",
-      "https://admin.coworktown.com",
-      "https://coworktown.com",
-      "https://www.coworktown.com",
+      "http://localhost:3000",
+      "http://localhost:3001",
       "https://virtualxcel.in",
       "https://www.virtualxcel.in",
+      "https://sales.virtualxcel.in",
       "https://admin.virtualxcel.in",
       "https://virtualxcel.co.in",
       "https://www.virtualxcel.co.in",
     ],
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE"],
-  })
+  }),
 );
 
 import user from "./routes/userRoutes.js";
 import admin from "./routes/adminRoutes.js";
+import sales from "./routes/salesRoutes.js";
 import state from "./routes/stateRoutes.js";
 import city from "./routes/cityRoutes.js";
 import location from "./routes/locationRoutes.js";
 import lead from "./routes/leadRoutes.js";
 
 app.use("/api/v1", admin);
+app.use("/api/v1", sales);
 app.use("/api/v1", state);
 app.use("/api/v1", city);
 app.use("/api/v1", location);
