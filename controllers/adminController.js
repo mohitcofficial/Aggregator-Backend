@@ -240,26 +240,31 @@ export const getAllAdmins = catchAsyncError(async (req, res, next) => {
 });
 
 export const adminLogin = catchAsyncError(async (req, res, next) => {
+  console.log("here1");
   const { email, password } = req.body;
   if (!email) return next(new ErrorHandler("Please provide email", 400));
   if (!password) return next(new ErrorHandler("Please provide password", 400));
-
+  console.log("here2");
   const admin = await User.findOne({ email }).select("+password");
-
+  console.log("here3");
   if (!admin) return next(new ErrorHandler("Invalid email or password", 401));
   if (admin.role !== "admin" && admin.role !== "super_admin")
     return next(new ErrorHandler("Invalid email or password", 401));
-
+  console.log("here4");
   const isMatch = await bcrypt.compare(password, admin.password);
 
+  console.log("here5");
   if (!isMatch) return next(new ErrorHandler("Invalid email or password", 401));
+  console.log("here6");
 
   if (!admin.isActive)
     return next(
       new ErrorHandler("Your account is deactive. Contact Super Admin", 401),
     );
+  console.log("here7");
 
   sendJWTToken(res, admin, `Welcome Back ${admin.name}`, 200);
+  console.log("here8");
 });
 
 export const getMyProfile = catchAsyncError(async (req, res, next) => {
