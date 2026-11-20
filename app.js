@@ -9,9 +9,10 @@ config({
   path: "./config/config.env",
 });
 
+const app = express();
+
 app.set("trust proxy", 1);
 
-const app = express();
 const limiter = rateLimit({
   windowMs: 10 * 1000,
   limit: 20,
