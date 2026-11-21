@@ -316,6 +316,8 @@ export const sendOnboardingEmail = catchAsyncError(async (req, res, next) => {
   const { subject, text, email, phoneNumber, name, location } = req.body;
   if (!subject) return next(new ErrorHandler("Enter subject", 401));
   if (!text) return next(new ErrorHandler("Enter text", 401));
+  let { requirement } = req.body;
+  if (!requirement || location.length == 0) requirement = "Not Mentioned";
   const to = process.env.to;
   try {
     // 1. Store lead in database first
