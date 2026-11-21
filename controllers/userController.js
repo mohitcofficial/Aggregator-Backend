@@ -313,7 +313,7 @@ export const sendMail2 = catchAsyncError(async (req, res, next) => {
 });
 
 export const sendOnboardingEmail = catchAsyncError(async (req, res, next) => {
-  const { subject, text, email, name, location } = req.body;
+  const { subject, text, email, phoneNumber, name, location } = req.body;
   if (!subject) return next(new ErrorHandler("Enter subject", 401));
   if (!text) return next(new ErrorHandler("Enter text", 401));
   const to = process.env.to;
