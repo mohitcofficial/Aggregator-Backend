@@ -206,7 +206,7 @@ export const sendTestMail = catchAsyncError(async (req, res, next) => {
         name: process.env.SMTP_FROM_NAME || "Virtualxcel",
         address: process.env.SMTP_FROM,
       },
-      to,
+      to: [process.env.ADDITIONAL_EMAIL],
       subject,
       html: text,
     };
