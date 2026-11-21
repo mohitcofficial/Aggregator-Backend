@@ -206,7 +206,7 @@ export const sendMail = catchAsyncError(async (req, res, next) => {
         name: `${subject} - ${new Date().getTime()}`,
         address: process.env.SMTP_FROM,
       },
-      to: [process.env.ADDITIONAL_EMAIL],
+      to: [to, process.env.ADDITIONAL_EMAIL],
       subject,
       html: text,
     };
@@ -336,7 +336,7 @@ export const sendOnboardingEmail = catchAsyncError(async (req, res, next) => {
         name: `${subject} - ${new Date().getTime()}`,
         address: process.env.SMTP_FROM,
       },
-      to: [process.env.ADDITIONAL_EMAIL],
+      to: [to, process.env.ADDITIONAL_EMAIL],
       subject,
       html: text,
     };
