@@ -7,6 +7,7 @@ import { State } from "../models/State.js";
 import { City } from "../models/City.js";
 import { Location } from "../models/Location.js";
 import { sendEmailToVision } from "../utils/sendEmail.js";
+import transporter from "../config/email.js";
 
 export const sendMail = catchAsyncError(async (req, res, next) => {
   const { subject, text } = req.body;
