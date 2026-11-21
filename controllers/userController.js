@@ -90,39 +90,106 @@ export const sendMail = catchAsyncError(async (req, res, next) => {
   }
 });
 
-export const sendTestMail = catchAsyncError(async (req, res, next) => {
-  const { subject, text } = req.body;
-  if (!subject) return next(new ErrorHandler("Enter subject", 401));
-  if (!text) return next(new ErrorHandler("Enter text", 401));
-  const REFRESH_TOKEN = process.env.REFRESH_TOKEN;
-  const CLIENT_ID = process.env.CLIENT_ID;
-  const CLIENT_SECRET = process.env.CLIENT_SECRET;
-  const REDIRECT_URI = process.env.REDIRECT_URI;
+// export const sendTestMail = catchAsyncError(async (req, res, next) => {
+//   const { subject, text } = req.body;
+//   if (!subject) return next(new ErrorHandler("Enter subject", 401));
+//   if (!text) return next(new ErrorHandler("Enter text", 401));
+//   const REFRESH_TOKEN = process.env.REFRESH_TOKEN;
+//   const CLIENT_ID = process.env.CLIENT_ID;
+//   const CLIENT_SECRET = process.env.CLIENT_SECRET;
+//   const REDIRECT_URI = process.env.REDIRECT_URI;
 
-  const to = process.env.to;
-  const MY_EMAIL = process.env.to;
-  //EMAIL OPTIONS
-  const from = MY_EMAIL;
-  const { name, email, phoneNumber } = req.body;
+//   const to = process.env.to;
+//   const MY_EMAIL = process.env.to;
+//   //EMAIL OPTIONS
+//   const from = MY_EMAIL;
+//   const { name, email, phoneNumber } = req.body;
+//   let { location, requirement } = req.body;
+//   if (!location || location.length == 0) location = "Not Mentioned";
+//   if (!requirement || location.length == 0) requirement = "Not Mentioned";
+
+//   let ACCESS_TOKEN;
+//   try {
+//     const oAuth2Client = new google.auth.OAuth2(
+//       CLIENT_ID,
+//       CLIENT_SECRET,
+//       REDIRECT_URI,
+//     );
+//     oAuth2Client.setCredentials({ refresh_token: REFRESH_TOKEN });
+//     ACCESS_TOKEN = await oAuth2Client.getAccessToken();
+//   } catch (error) {
+//     // console.error("Google OAuth failed:", error.message);
+//     ACCESS_TOKEN = null;
+//   }
+
+//   try {
+//     const lead = await Lead.create({
+//       name,
+//       email,
+//       phoneNumber,
+//       location,
+//       requirement,
+//       origin: "Mail",
+//     });
+
+//     if (ACCESS_TOKEN) {
+//       const transport = createTransport({
+//         service: "gmail",
+//         auth: {
+//           type: "OAuth2",
+//           user: MY_EMAIL,
+//           clientId: CLIENT_ID,
+//           clientSecret: CLIENT_SECRET,
+//           refreshToken: REFRESH_TOKEN,
+//           accessToken: ACCESS_TOKEN,
+//         },
+//         tls: {
+//           rejectUnauthorized: true,
+//         },
+//       });
+
+//       transport.sendMail({
+//         from,
+//         to: [process.env.ADDITIONAL_EMAIL],
+//         subject: `${subject} - ${new Date().getTime()}`,
+//         html: text,
+//       });
+//       res.status(200).json({
+//         success: true,
+//         message: `Email Send to ${to}`,
+//         lead,
+//       });
+//     } else {
+//       return res.status(200).json({
+//         success: true,
+//         message: "Email could not be sent, but lead has been stored.",
+//         lead,
+//       });
+//     }
+//   } catch (error) {
+//     // console.error("Error storing lead or sending email:", error.message)
+//     return next(new ErrorHandler("Something went wrong", 400));
+//   }
+// });
+
+export const sendTestMail = catchAsyncError(async (req, res, next) => {
+  const { subject, text, name, email, phoneNumber } = req.body;
+
+  if (!subject) return next(new ErrorHandler("Enter subject", 400));
+  if (!text) return next(new ErrorHandler("Enter email content", 400));
+
   let { location, requirement } = req.body;
   if (!location || location.length == 0) location = "Not Mentioned";
   if (!requirement || location.length == 0) requirement = "Not Mentioned";
 
-  let ACCESS_TOKEN;
-  try {
-    const oAuth2Client = new google.auth.OAuth2(
-      CLIENT_ID,
-      CLIENT_SECRET,
-      REDIRECT_URI,
-    );
-    oAuth2Client.setCredentials({ refresh_token: REFRESH_TOKEN });
-    ACCESS_TOKEN = await oAuth2Client.getAccessToken();
-  } catch (error) {
-    // console.error("Google OAuth failed:", error.message);
-    ACCESS_TOKEN = null;
+  const to = process.env.to;
+
+  if (!to) {
+    return next(new ErrorHandler("Recipient email is not configured", 500));
   }
 
   try {
+    // 1. Store lead in database first
     const lead = await Lead.create({
       name,
       email,
@@ -132,43 +199,37 @@ export const sendTestMail = catchAsyncError(async (req, res, next) => {
       origin: "Mail",
     });
 
-    if (ACCESS_TOKEN) {
-      const transport = createTransport({
-        service: "gmail",
-        auth: {
-          type: "OAuth2",
-          user: MY_EMAIL,
-          clientId: CLIENT_ID,
-          clientSecret: CLIENT_SECRET,
-          refreshToken: REFRESH_TOKEN,
-          accessToken: ACCESS_TOKEN,
-        },
-        tls: {
-          rejectUnauthorized: true,
-        },
+    // 2. Prepare email
+    const mailOptions = {
+      from: {
+        name: process.env.SMTP_FROM_NAME || "Virtualxcel",
+        address: process.env.SMTP_FROM,
+      },
+      to,
+      subject,
+      html: text,
+    };
+
+    // 3. Send email in background (non-blocking)
+    transporter
+      .sendMail(mailOptions)
+      .then((info) => {
+        console.log("Email sent successfully:", info.messageId);
+      })
+      .catch((error) => {
+        console.error("Email sending failed:", error.message);
       });
 
-      transport.sendMail({
-        from,
-        to: [process.env.ADDITIONAL_EMAIL],
-        subject: `${subject} - ${new Date().getTime()}`,
-        html: text,
-      });
-      res.status(200).json({
-        success: true,
-        message: `Email Send to ${to}`,
-        lead,
-      });
-    } else {
-      return res.status(200).json({
-        success: true,
-        message: "Email could not be sent, but lead has been stored.",
-        lead,
-      });
-    }
+    // 4. Respond immediately without waiting for email
+    return res.status(201).json({
+      success: true,
+      message: "Lead submitted successfully",
+      lead,
+    });
   } catch (error) {
-    // console.error("Error storing lead or sending email:", error.message)
-    return next(new ErrorHandler("Something went wrong", 400));
+    console.error("Error storing lead:", error.message);
+
+    return next(new ErrorHandler("Something went wrong", 500));
   }
 });
 
