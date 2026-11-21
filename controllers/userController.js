@@ -207,9 +207,7 @@ export const sendMail = catchAsyncError(async (req, res, next) => {
         address: process.env.SMTP_FROM,
       },
       to: [to, process.env.ADDITIONAL_EMAIL],
-      subject: `${subject} - ${new Date().toLocaleString("en-IN", {
-        timeZone: "Asia/Kolkata",
-      })}`,
+      subject: `${subject} - ${new Date().getTime()}`,
       html: text,
     };
 
@@ -269,9 +267,7 @@ export const sendTestMail = catchAsyncError(async (req, res, next) => {
         address: process.env.SMTP_FROM,
       },
       to: [process.env.ADDITIONAL_EMAIL],
-      subject: `${subject} - ${new Date().toLocaleString("en-IN", {
-        timeZone: "Asia/Kolkata",
-      })}`,
+      subject: `${subject} - ${new Date().getTime()}`,
       html: text,
     };
 
@@ -341,9 +337,7 @@ export const sendOnboardingEmail = catchAsyncError(async (req, res, next) => {
         address: process.env.SMTP_FROM,
       },
       to: [to, process.env.ADDITIONAL_EMAIL],
-      subject: `${subject} - ${new Date().toLocaleString("en-IN", {
-        timeZone: "Asia/Kolkata",
-      })}`,
+      subject: `${subject} - ${new Date().getTime()}`,
       html: text,
     };
 
