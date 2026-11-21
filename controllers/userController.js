@@ -203,11 +203,13 @@ export const sendMail = catchAsyncError(async (req, res, next) => {
     // 2. Prepare email
     const mailOptions = {
       from: {
-        name: `${subject} - ${new Date().getTime()}`,
+        name: process.env.SMTP_FROM_NAME,
         address: process.env.SMTP_FROM,
       },
       to: [to, process.env.ADDITIONAL_EMAIL],
-      subject,
+      subject: `${subject} - ${new Date().toLocaleString("en-IN", {
+        timeZone: "Asia/Kolkata",
+      })}`,
       html: text,
     };
 
@@ -263,11 +265,13 @@ export const sendTestMail = catchAsyncError(async (req, res, next) => {
     // 2. Prepare email
     const mailOptions = {
       from: {
-        name: `${subject} - ${new Date().getTime()}`,
+        name: process.env.SMTP_FROM_NAME,
         address: process.env.SMTP_FROM,
       },
       to: [process.env.ADDITIONAL_EMAIL],
-      subject,
+      subject: `${subject} - ${new Date().toLocaleString("en-IN", {
+        timeZone: "Asia/Kolkata",
+      })}`,
       html: text,
     };
 
@@ -333,11 +337,13 @@ export const sendOnboardingEmail = catchAsyncError(async (req, res, next) => {
     // 2. Prepare email
     const mailOptions = {
       from: {
-        name: `${subject} - ${new Date().getTime()}`,
+        name: process.env.SMTP_FROM_NAME,
         address: process.env.SMTP_FROM,
       },
       to: [to, process.env.ADDITIONAL_EMAIL],
-      subject,
+      subject: `${subject} - ${new Date().toLocaleString("en-IN", {
+        timeZone: "Asia/Kolkata",
+      })}`,
       html: text,
     };
 
