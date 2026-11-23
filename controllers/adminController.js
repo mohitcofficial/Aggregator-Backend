@@ -107,16 +107,8 @@ export const createUser = catchAsyncError(async (req, res, next) => {
 
 export const updateUserProfile = catchAsyncError(async (req, res, next) => {
   const { id } = req.params;
-  const {
-    name,
-    email,
-    phone,
-    password,
-    role,
-    target,
-    commissionRate,
-    isActive,
-  } = req.body;
+  const { name, email, phone, password, role, isActive, target, incentive } =
+    req.body;
 
   if (!mongoose.Types.ObjectId.isValid(id))
     return next(new ErrorHandler("Invalid User ID", 400));
@@ -132,13 +124,26 @@ export const updateUserProfile = catchAsyncError(async (req, res, next) => {
   if (!isSelf && !isAdmin && !isSuperAdmin)
     return next(new ErrorHandler("Access denied", 403));
 
+  if (isAdmin && userToUpdate.role === "super_admin")
+    return next(new ErrorHandler("Access denied", 403));
+
+  if (isAdmin && userToUpdate.role === "admin")
+    return next(new ErrorHandler("Admins Cannot Update Another Admins", 403));
+
+  if (isSelf && !isActive)
+    return next(new ErrorHandler("You Cannot Deactivate Your Account", 403));
+  if (userToUpdate.role === "admin" && !isSuperAdmin)
+    return next(
+      new ErrorHandler("Only super admin can change admin details", 403),
+    );
+
+  userToUpdate.isActive = isActive;
   if (name) userToUpdate.name = name;
   if (email) userToUpdate.email = email;
   if (phone) userToUpdate.phone = phone;
   if (role) userToUpdate.role = role;
-  if (target !== undefined) updateData.target = target;
-  if (commissionRate !== undefined) updateData.commissionRate = commissionRate;
-  if (typeof isActive === "boolean") updateData.isActive = isActive;
+  if (target) userToUpdate.target = target;
+  if (incentive) userToUpdate.incentive.rate = incentive;
 
   if (req.file) {
     const profileImage = await uploadToCloudinary(req.file);
@@ -151,16 +156,6 @@ export const updateUserProfile = catchAsyncError(async (req, res, next) => {
     if (isSelf && !isAdmin && !isSuperAdmin)
       return next(
         new ErrorHandler("You are not allowed to change your password", 403),
-      );
-
-    if (isAdmin && userToUpdate.role === "admin")
-      return next(
-        new ErrorHandler("Admin cannot change another admin's password", 403),
-      );
-
-    if (userToUpdate.role === "admin" && !isSuperAdmin)
-      return next(
-        new ErrorHandler("Only super admin can change admin password", 403),
       );
 
     userToUpdate.password = password;
@@ -178,7 +173,7 @@ export const updateUserProfile = catchAsyncError(async (req, res, next) => {
 });
 
 export const deleteUser = catchAsyncError(async (req, res, next) => {
-  const { id } = req.body;
+  const id = req.params.id;
   if (!id) return next(new ErrorHandler("Please provide ID", 400));
 
   const user = await User.findById(id);
@@ -191,8 +186,11 @@ export const deleteUser = catchAsyncError(async (req, res, next) => {
     return next(new ErrorHandler("You cannot delete your own account", 400));
   }
 
-  if (user.role === "admin" && !req.user.isSuperAdmin) {
+  if (user.role === "admin" && req.user.role !== "super_admin") {
     return next(new ErrorHandler("You cannot delete another admin", 403));
+  }
+  if (user.role === "super_admin" && req.user.role === "admin") {
+    return next(new ErrorHandler("Admin cannot delete super admin", 403));
   }
 
   await User.findByIdAndDelete(id);
@@ -297,7 +295,7 @@ export const deactivateUser = catchAsyncError(async (req, res, next) => {
     );
   }
 
-  if (user.role === "admin" && !req.user.isSuperAdmin) {
+  if (user.role === "admin" && req.user.role !== "super_admin") {
     return next(new ErrorHandler("You cannot deactivate another admin", 403));
   }
 

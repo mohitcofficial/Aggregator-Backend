@@ -27,16 +27,10 @@ const userSchema = new mongoose.Schema(
       select: false,
     },
 
-    profileImage: [
-      {
-        public_id: {
-          type: String,
-        },
-        url: {
-          type: String,
-        },
-      },
-    ],
+    profileImage: {
+      public_id: String,
+      url: String,
+    },
 
     role: {
       type: String,
