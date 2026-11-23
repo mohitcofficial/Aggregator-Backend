@@ -6,7 +6,7 @@ export const sendJWTToken = (res, user, message, statusCode = 200) => {
     { _id: user._id },
     "oinfiosdfnodsifisnfosifsnodfsino",
     {
-      expiresIn: "&d",
+      expiresIn: "7d",
     },
   );
 
