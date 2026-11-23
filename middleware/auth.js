@@ -9,14 +9,19 @@ export const isAuthenticated = catchAsyncError(async (req, res, next) => {
   const { authToken } = req.cookies;
 
   if (!authToken) return next(new ErrorHandler("Not logged in!", 401));
+  console.log("here 1");
 
   const decoded = jwt.verify(authToken, "oinfiosdfnodsifisnfosifsnodfsino");
+  console.log("here 2");
 
   let user = await User.findById(decoded._id);
+  console.log("here 3");
 
   if (!user) return next(new ErrorHandler("Not Logged In !", 401));
+  console.log("here 4");
 
   req.user = user;
+  console.log("here 5");
 
   next();
 });
