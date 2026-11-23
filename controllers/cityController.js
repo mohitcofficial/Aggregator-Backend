@@ -11,7 +11,7 @@ export const addNewCity = catchAsyncError(async (req, res, next) => {
   const { name, stateId, metaTitle, metaDescription, metaKeyword } = req.body;
   const cityBanner = req.file;
   const businessRegistrationPrice = parseFloat(
-    req.body.businessRegistrationPrice
+    req.body.businessRegistrationPrice,
   );
   const gstRegistrationPrice = parseFloat(req.body.gstRegistrationPrice);
   const mailingAddressPrice = parseFloat(req.body.mailingAddressPrice);
@@ -30,7 +30,7 @@ export const addNewCity = catchAsyncError(async (req, res, next) => {
     return next(new ErrorHandler("City State ID is mandatory !", 400));
   if (!businessRegistrationPrice)
     return next(
-      new ErrorHandler("City Business Regisration Price is mandatory !", 400)
+      new ErrorHandler("City Business Regisration Price is mandatory !", 400),
     );
   if (!gstRegistrationPrice)
     return next(new ErrorHandler("GST Registration Price is mandatory !", 400));
@@ -47,8 +47,8 @@ export const addNewCity = catchAsyncError(async (req, res, next) => {
     return next(
       new ErrorHandler(
         "City already present in the State with same name !",
-        401
-      )
+        401,
+      ),
     );
 
   const metaData = { metaTitle, metaDescription, metaKeyword };
@@ -77,7 +77,7 @@ export const updateCity = catchAsyncError(async (req, res, next) => {
   const { name, metaTitle, metaDescription, metaKeyword, stateId } = req.body;
 
   const businessRegistrationPrice = parseFloat(
-    req.body.businessRegistrationPrice
+    req.body.businessRegistrationPrice,
   );
   const gstRegistrationPrice = parseFloat(req.body.gstRegistrationPrice);
   const mailingAddressPrice = parseFloat(req.body.mailingAddressPrice);
@@ -103,21 +103,21 @@ export const updateCity = catchAsyncError(async (req, res, next) => {
   if (businessRegistrationPrice) {
     if (typeof businessRegistrationPrice !== "number")
       return next(
-        new ErrorHandler("Business Registration Price must be a number!", 401)
+        new ErrorHandler("Business Registration Price must be a number!", 401),
       );
     city.businessRegistrationPrice = businessRegistrationPrice;
   }
   if (gstRegistrationPrice) {
     if (typeof gstRegistrationPrice !== "number")
       return next(
-        new ErrorHandler("GST Registration Price must be a number!", 401)
+        new ErrorHandler("GST Registration Price must be a number!", 401),
       );
     city.gstRegistrationPrice = gstRegistrationPrice;
   }
   if (mailingAddressPrice) {
     if (typeof mailingAddressPrice !== "number")
       return next(
-        new ErrorHandler("Mailing Address Price must be a number!", 401)
+        new ErrorHandler("Mailing Address Price must be a number!", 401),
       );
     city.mailingAddressPrice = mailingAddressPrice;
   }
@@ -160,8 +160,9 @@ export const getCityInfo = catchAsyncError(async (req, res, next) => {
   const id = req.params.id;
 
   if (!id) return next(new ErrorHandler("Please provide City id", 400));
-
+  console.log("city id: ", id);
   const city = await City.findById(id).populate("stateId", "name");
+  console.log("city: ", city);
   if (!city) return next(new ErrorHandler("No City found with this id", 401));
 
   res.status(200).json({
