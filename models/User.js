@@ -40,7 +40,7 @@ const userSchema = new mongoose.Schema(
 
     role: {
       type: String,
-      enum: ["admin", "accounts", "operation", "super_admin"],
+      enum: ["admin", "accounts", "operation", "sales", "super_admin"],
       index: true,
     },
 
@@ -48,9 +48,10 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
-    isSuperAdmin: {
-      type: Boolean,
-      default: false,
+
+    createdBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
     },
 
     target: {
@@ -58,14 +59,21 @@ const userSchema = new mongoose.Schema(
       default: 0,
     },
 
-    commissionRate: {
-      type: Number,
-      default: 0,
-    },
-
-    createdBy: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Admin",
+    incentive: {
+      isEnabled: {
+        type: Boolean,
+        default: true,
+      },
+      type: {
+        type: String,
+        enum: ["percentage", "fixed"],
+        default: "percentage",
+      },
+      rate: {
+        type: Number,
+        min: 0,
+        default: 0,
+      },
     },
   },
   { timestamps: true },
