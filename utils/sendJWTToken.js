@@ -17,8 +17,8 @@ export const sendJWTToken = (res, user, message, statusCode = 200) => {
       // sameSite: "none",
       sameSite: "lax",
       // for development false
-      secure: false,
-      // domain: ".virtualxcel.in",
+      secure: true,
+      domain: ".virtualxcel.in",
       httpOnly: true,
       path: "/",
     })

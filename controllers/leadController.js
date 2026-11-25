@@ -3,6 +3,7 @@ import { catchAsyncError } from "../middleware/catchAsyncError.js";
 import { Lead } from "../models/Lead.js";
 import ErrorHandler from "../utils/ErrorHandler.js";
 import { User } from "../models/User.js";
+import Quotation from "../models/Quotation.js";
 
 export const createLead = catchAsyncError(async (req, res, next) => {
   const {
@@ -194,16 +195,24 @@ export const getLeadById = catchAsyncError(async (req, res, next) => {
     return next(new ErrorHandler("Lead ID is required", 400));
   }
 
-  const lead = await Lead.findById(id)
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return next(new ErrorHandler("Invalid Lead ID", 400));
+  }
+
+  const objectId = new mongoose.Types.ObjectId(id);
+
+  const lead = await Lead.findById(objectId)
     .populate("assignedTo", "name email phone")
     .populate("createdBy", "name")
-    .populate("followUps.createdBy", "name email");
+    .populate("followUps.createdBy", "name email")
+    .populate("followUps.lastEditedBy", "name");
 
   if (!lead) {
     return next(new ErrorHandler("Lead not found", 404));
   }
 
-  const isAdmin = req.user.role === "admin";
+  const isAdmin = req.user.role === "super_admin" || req.user.role === "admin";
+
   const isAssignedEmployee =
     lead.assignedTo &&
     lead.assignedTo._id.toString() === req.user._id.toString();
@@ -212,9 +221,14 @@ export const getLeadById = catchAsyncError(async (req, res, next) => {
     return next(new ErrorHandler("Access denied", 403));
   }
 
+  const quotations = await Quotation.find({ leadId: lead._id })
+    .sort({ createdAt: -1 })
+    .populate("createdBy", "name email");
+
   res.status(200).json({
     success: true,
     lead,
+    quotations,
   });
 });
 
@@ -409,4 +423,117 @@ export const deleteFollowUp = catchAsyncError(async (req, res, next) => {
     message: "Follow-up deleted successfully",
     lead,
   });
+});
+
+export const createLeadFollowUp = catchAsyncError(async (req, res, next) => {
+  try {
+    const { date, note } = req.body;
+
+    if (!date || !note?.trim()) {
+      return res.status(400).json({
+        success: false,
+        message: "Date and note are required",
+      });
+    }
+
+    const lead = await Lead.findById(req.params.id);
+
+    if (!lead) {
+      return res.status(404).json({
+        success: false,
+        message: "Lead not found",
+      });
+    }
+
+    lead.followUps.push({
+      date: new Date(date),
+      note: note.trim(),
+      createdBy: req.user._id,
+    });
+
+    await lead.save();
+
+    return res.status(201).json({
+      success: true,
+      message: "Follow-up created successfully",
+      lead,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// UPDATE FOLLOW-UP
+export const updateLeadFollowUp = catchAsyncError(async (req, res, next) => {
+  try {
+    const { date, note } = req.body;
+
+    const lead = await Lead.findById(req.params.id);
+
+    if (!lead) {
+      return res.status(404).json({
+        success: false,
+        message: "Lead not found",
+      });
+    }
+
+    const followUp = lead.followUps.id(req.params.followUpId);
+
+    if (!followUp) {
+      return res.status(404).json({
+        success: false,
+        message: "Follow-up not found",
+      });
+    }
+
+    if (date) followUp.date = new Date(date);
+    if (note !== undefined) followUp.note = note.trim();
+
+    followUp.lastEditedAt = new Date();
+    followUp.lastEditedBy = req.user._id;
+
+    await lead.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Follow-up updated successfully",
+      lead,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// DELETE FOLLOW-UP
+export const deleteLeadFollowUp = catchAsyncError(async (req, res, next) => {
+  try {
+    const lead = await Lead.findById(req.params.id);
+
+    if (!lead) {
+      return res.status(404).json({
+        success: false,
+        message: "Lead not found",
+      });
+    }
+
+    const followUp = lead.followUps.id(req.params.followUpId);
+
+    if (!followUp) {
+      return res.status(404).json({
+        success: false,
+        message: "Follow-up not found",
+      });
+    }
+
+    followUp.deleteOne();
+
+    await lead.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Follow-up deleted successfully",
+    });
+  } catch (error) {
+    next(error);
+  }
 });

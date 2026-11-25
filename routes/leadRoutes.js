@@ -8,6 +8,9 @@ import {
   getMyLeads,
   updateLead,
   deleteFollowUp,
+  deleteLeadFollowUp,
+  updateLeadFollowUp,
+  createLeadFollowUp,
 } from "../controllers/leadController.js";
 
 const router = express.Router();
@@ -49,5 +52,26 @@ router
     authorizeRoles("super_admin", "admin"),
     deleteFollowUp,
   );
+
+router.post(
+  "/lead/:id/followup",
+  isAuthenticated,
+  authorizeRoles("super_admin", "admin"),
+  createLeadFollowUp,
+);
+
+router.put(
+  "/lead/:id/followup/:followUpId",
+  isAuthenticated,
+  authorizeRoles("super_admin", "admin"),
+  updateLeadFollowUp,
+);
+
+router.delete(
+  "/lead/:id/followup/:followUpId",
+  isAuthenticated,
+  authorizeRoles("super_admin", "admin"),
+  deleteLeadFollowUp,
+);
 
 export default router;
